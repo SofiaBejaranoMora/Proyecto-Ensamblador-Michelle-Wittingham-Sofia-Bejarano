@@ -3,15 +3,18 @@
 
 INCLUDE macros.inc
 
+
 .DATA
 ModoAnterior DB ?
 INCLUDE paleta.inc
 INCLUDE figuras.inc
 INCLUDE inicio.inc
+INCLUDE menuDato.inc
 
 .CODE
 INCLUDE video.inc
 INCLUDE pantalla.inc
+INCLUDE menu.inc
 
 MAIN PROC
     MOV AX, @DATA
@@ -28,13 +31,30 @@ MAIN PROC
     MOV ES, AX
     CALL LimpiarPantalla
     CALL PantallaInicio
+
 EsperarInicio:
     MOV AH, 00H
     INT 16H
+
     CMP AL, 13
-    JE Terminar
+    JE AbrirMenu
+
     CMP AL, 27
-    JNE EsperarInicio
+    JE Terminar
+
+    JMP EsperarInicio
+
+AbrirMenu:
+    CALL LimpiarPantalla
+    CALL PantallaMenu
+
+EsperarMenu:
+    MOV AH, 00H
+    INT 16H
+
+    CMP AL, 27
+    JNE EsperarMenu
+
 Terminar:
     ; ENTER y ESC salen de esta prueba. El menu se agregara despues.
     MOV AL, ModoAnterior
