@@ -4,10 +4,10 @@
 PantallaMenu PROC
     PUSH AX
 
-    ; Fondo morado.
+    ; Fondo 
     PINTAR_RECT 4, 4, 309, 192, 1
 
-    ; Borde exterior.
+    ; Borde
     PINTAR_RECT 4, 4, 309, 1, 4
     PINTAR_RECT 4, 195, 309, 1, 4
     PINTAR_RECT 4, 4, 1, 192, 4
@@ -20,13 +20,13 @@ PantallaMenu PROC
     ; Linea decorativa debajo del titulo.
     PINTAR_RECT 24, 48, 268, 1, 5
 
-    ; Unico rectangulo de seleccion.
+    ;rectangulo de seleccion.
     PINTAR_RECT 87, 59, 146, 1, 4 ; arriba
     PINTAR_RECT 87, 81, 146, 1, 4 ; abajo
     PINTAR_RECT 87, 59, 1, 23, 4 ; izquierda
     PINTAR_RECT 232, 59, 1, 23, 4 ; derecha
 
-    ; Flecha/triangulo izquierdo.
+    ; Flecha de seleccion.
     PINTAR_RECT 63, 63, 2, 16, 4
     PINTAR_RECT 65, 64, 2, 14, 4
     PINTAR_RECT 67, 65, 2, 12, 4
