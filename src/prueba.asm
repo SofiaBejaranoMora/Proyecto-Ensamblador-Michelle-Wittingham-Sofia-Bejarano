@@ -3,18 +3,20 @@
 
 INCLUDE macros.inc
 
-
 .DATA
 ModoAnterior DB ?
 INCLUDE paleta.inc
 INCLUDE figuras.inc
 INCLUDE inicio.inc
 INCLUDE menuDato.inc
+SonidoActivo DB 0
+InicioSonido DW 0
 
 .CODE
 INCLUDE video.inc
 INCLUDE pantalla.inc
 INCLUDE menu.inc
+INCLUDE audio.inc
 
 MAIN PROC
     MOV AX, @DATA
@@ -47,8 +49,15 @@ EsperarInicio:
 AbrirMenu:
     CALL LimpiarPantalla
     CALL PantallaMenu
+    CALL SonidoSeleccion
 
 EsperarMenu:
+    CALL ActualizarSonido
+
+    MOV AH, 01H
+    INT 16H
+    JZ EsperarMenu
+
     MOV AH, 00H
     INT 16H
 
@@ -56,6 +65,8 @@ EsperarMenu:
     JNE EsperarMenu
 
 Terminar:
+    CALL ApagarSonido
+
     ; ENTER y ESC salen de esta prueba. El menu se agregara despues.
     MOV AL, ModoAnterior
     MOV AH, 00H
