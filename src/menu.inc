@@ -1,10 +1,41 @@
 ; Pantalla del menu principal.
 ; Requiere macros.inc, figuras.inc y video.inc.
 
+DibujarSelector PROC
+    PUSH AX
+    PUSH BX
+
+    MOV AL, OpcionMenu
+    MOV BL, 25
+    MUL BL
+    ADD AX, 59
+    MOV BX, AX
+
+    ; Borde superior.
+    PINTAR_RECT 87, BX, 146, 1, 4
+
+    ; Borde inferior.
+    ADD BX, 22
+    PINTAR_RECT 87, BX, 146, 1, 4
+    SUB BX, 22
+
+    ; Bordes laterales.
+    PINTAR_RECT 87, BX, 1, 23, 4
+    PINTAR_RECT 232, BX, 1, 23, 4
+
+    ; Flecha de seleccion.
+    ADD BX, 4
+    PINTAR_IMAGEN 63, BX, 16, 16, SpriteFlecha, 8, 8
+
+    POP BX
+    POP AX
+    RET
+DibujarSelector ENDP
+
 PantallaMenu PROC
     PUSH AX
 
-    ; Fondo 
+    ; Fondo
     PINTAR_RECT 4, 4, 309, 192, 1
 
     ; Borde
@@ -20,22 +51,6 @@ PantallaMenu PROC
     ; Linea decorativa debajo del titulo.
     PINTAR_RECT 24, 48, 268, 1, 5
 
-    ;rectangulo de seleccion.
-    PINTAR_RECT 87, 59, 146, 1, 4 ; arriba
-    PINTAR_RECT 87, 81, 146, 1, 4 ; abajo
-    PINTAR_RECT 87, 59, 1, 23, 4 ; izquierda
-    PINTAR_RECT 232, 59, 1, 23, 4 ; derecha
-
-    ; Flecha de seleccion.
-    PINTAR_RECT 63, 63, 2, 16, 4
-    PINTAR_RECT 65, 64, 2, 14, 4
-    PINTAR_RECT 67, 65, 2, 12, 4
-    PINTAR_RECT 69, 66, 2, 10, 4
-    PINTAR_RECT 71, 67, 2, 8, 4
-    PINTAR_RECT 73, 68, 2, 6, 4
-    PINTAR_RECT 75, 69, 2, 4, 4
-    PINTAR_RECT 77, 70, 2, 2, 4
-
     ; Obciones del menu
     PINTAR_IMAGEN 98, 63, 62, 16, TextoJugar, TextoJugarAncho, TextoJugarAlto
     PINTAR_IMAGEN 94, 88, 105, 14, TextoDificultad, TextoDificultadAncho, TextoDificultadAlto
@@ -47,6 +62,12 @@ PantallaMenu PROC
     PINTAR_IMAGEN 12, 140, 42, 42, SpriteGato, 16, 16
     PINTAR_IMAGEN 250, 140, 42, 42, SpriteCalabaza, 16, 16
 
+    ; Dibujar rectangulo y flecha de seleccion.
+    CALL DibujarSelector
+
     POP AX
+
+    ; Procedimiento para dibujar el selector del menu.
+
     RET
 PantallaMenu ENDP

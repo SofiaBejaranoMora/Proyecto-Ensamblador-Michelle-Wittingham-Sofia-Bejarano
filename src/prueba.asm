@@ -5,18 +5,17 @@ INCLUDE macros.inc
 
 .DATA
 ModoAnterior DB ?
+OpcionMenu DB 0
+
 INCLUDE paleta.inc
 INCLUDE figuras.inc
 INCLUDE inicio.inc
 INCLUDE menuDato.inc
-SonidoActivo DB 0
-InicioSonido DW 0
 
 .CODE
 INCLUDE video.inc
 INCLUDE pantalla.inc
 INCLUDE menu.inc
-INCLUDE audio.inc
 
 MAIN PROC
     MOV AX, @DATA
@@ -34,45 +33,60 @@ MAIN PROC
     CALL LimpiarPantalla
     CALL PantallaInicio
 
-EsperarInicio:
-    MOV AH, 00H
-    INT 16H
+    EsperarInicio:
+        MOV AH, 00H
+        INT 16H
 
-    CMP AL, 13
-    JE AbrirMenu
+        CMP AL, 13
+        JE AbrirMenu
 
-    CMP AL, 27
-    JE Terminar
+        CMP AL, 27
+        JE Terminar
 
-    JMP EsperarInicio
+        JMP EsperarInicio
 
-AbrirMenu:
-    CALL LimpiarPantalla
-    CALL PantallaMenu
-    CALL SonidoSeleccion
+    AbrirMenu:
+        CALL LimpiarPantalla
+        CALL PantallaMenu
 
-EsperarMenu:
-    CALL ActualizarSonido
+    EsperarMenu:
+        MOV AH, 00H
+        INT 16H
 
-    MOV AH, 01H
-    INT 16H
-    JZ EsperarMenu
+        ; Salir con ESC.
+        CMP AL, 27
+        JE Terminar
 
-    MOV AH, 00H
-    INT 16H
+        ; Detectar flecha abajo.
+        CMP AH, 50H
+        JE MenuAbajo
 
-    CMP AL, 27
-    JNE EsperarMenu
+        JMP EsperarMenu
 
-Terminar:
-    CALL ApagarSonido
+    MenuAbajo:
+        ; Comprobar si estamos en SALIR.
+        CMP OpcionMenu, 4
+        JE VolverAJugar
 
-    ; ENTER y ESC salen de esta prueba. El menu se agregara despues.
-    MOV AL, ModoAnterior
-    MOV AH, 00H
-    INT 10H
-    MOV AX, 4C00H
-    INT 21H
+        ; Pasar a la siguiente opcion.
+        INC OpcionMenu
+        JMP ActualizarMenu
+
+    VolverAJugar:
+        MOV OpcionMenu, 0
+
+    ActualizarMenu:
+        CALL LimpiarPantalla
+        CALL PantallaMenu
+        JMP EsperarMenu
+
+    Terminar:
+        ; ENTER y ESC salen de esta prueba. El menu se agregara despues.
+        MOV AL, ModoAnterior
+        MOV AH, 00H
+        INT 10H
+        MOV AX, 4C00H
+        INT 21H
 MAIN ENDP
 
 END MAIN
