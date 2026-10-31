@@ -16,6 +16,9 @@ INCLUDE menuDato.inc
 INCLUDE video.inc
 INCLUDE pantalla.inc
 INCLUDE menu.inc
+INCLUDE tablero.inc
+;INCLUDE credit.inc
+;INCLUDE dific.inc
 
 MAIN PROC
     MOV AX, @DATA
@@ -41,8 +44,10 @@ MAIN PROC
         JE AbrirMenu
 
         CMP AL, 27
-        JE Terminar
+        JNE SeguirEsperandoInicio
+        JMP Terminar
 
+    SeguirEsperandoInicio:
         JMP EsperarInicio
 
     AbrirMenu:
@@ -53,15 +58,40 @@ MAIN PROC
         MOV AH, 00H
         INT 16H
 
+        ; Salir con ESC.
         CMP AL, 27
         JE Terminar
 
+        ; Detectar ENTER.
+        CMP AL, 13
+        JE SeleccionarOpcion
+
+        ; Detectar flecha abajo.
         CMP AH, 50H
         JE MenuAbajo
 
         ; Detectar flecha arriba.
         CMP AH, 48H
         JE MenuArriba
+
+        JMP EsperarMenu
+
+    SeleccionarOpcion:
+        CMP OpcionMenu, 0
+        JE AbrirJuego
+
+        CMP OpcionMenu, 1
+        ;JE AbrirDificultad
+
+        CMP OpcionMenu, 2
+        ;JE AbrirInstrucciones
+
+        CMP OpcionMenu, 3
+
+        ;JE AbrirCreditos
+
+        CMP OpcionMenu, 4
+        JE Terminar
 
         JMP EsperarMenu
 
@@ -82,11 +112,14 @@ MAIN PROC
         JMP ActualizarMenu
 
     MenuAbajo:
+        ; Borrar el selector de la posicion actual.
         CALL BorrarSelector
 
+        ; Comprobar si estamos en SALIR.
         CMP OpcionMenu, 4
         JE VolverAJugar
 
+        ; Pasar a la siguiente opcion.
         INC OpcionMenu
         JMP ActualizarMenu
 
@@ -94,10 +127,23 @@ MAIN PROC
         MOV OpcionMenu, 0
 
     ActualizarMenu:
-        CALL PantallaMenu
+        CALL DibujarSelector
         JMP EsperarMenu
 
+    AbrirJuego:
+        CALL PantallaJuego
+
+    EsperarJuego:
+        MOV AH, 00H
+        INT 16H
+
+        CMP AL, 27
+        JNE EsperarJuego
+
+        JMP AbrirMenu
+
     Terminar:
+        ; ENTER y ESC salen de esta prueba. El menu se agregara despues.
         MOV AL, ModoAnterior
         MOV AH, 00H
         INT 10H
