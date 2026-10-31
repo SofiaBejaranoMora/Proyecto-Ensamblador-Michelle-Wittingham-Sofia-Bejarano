@@ -60,7 +60,24 @@ MAIN PROC
         CMP AH, 50H
         JE MenuAbajo
 
+        ; Detectar flecha arriba.
+        CMP AH, 48H
+        JE MenuArriba
+
         JMP EsperarMenu
+
+    MenuArriba:
+        ; Comprobar si estamos en JUGAR.
+        CMP OpcionMenu, 0
+        JE VolverASalir
+
+        ; Pasar a la opcion anterior.
+        DEC OpcionMenu
+        JMP ActualizarMenu
+
+    VolverASalir:
+        MOV OpcionMenu, 4
+        JMP ActualizarMenu
 
     MenuAbajo:
         CMP OpcionMenu, 4
