@@ -1,4 +1,3 @@
-6eeec22834a8b25800eec99ecbaee2fc1d3fd95b
 CargarPaleta PROC
     PUSH AX
     PUSH CX
