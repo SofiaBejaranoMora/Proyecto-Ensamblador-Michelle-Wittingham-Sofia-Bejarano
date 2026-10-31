@@ -12,13 +12,37 @@ INCLUDE figuras.inc
 INCLUDE inicio.inc
 INCLUDE menuDato.inc
 
+
+; Textos de CREDITOS.
+CredDesarrollo DB 'DESARROLLADO POR', 0
+CredMichelle   DB 'MICHELLE', 0
+CredSofia      DB 'SOFIA', 0
+CredVolver     DB 'ESC PARA VOLVER', 0
+
+; Textos de DIFICULTAD.
+DifFacil   DB 'FACIL', 0
+DifNormal  DB 'NORMAL', 0
+DifDificil DB 'DIFICIL', 0
+DifVolver  DB 'ESC PARA VOLVER', 0
+
+; Textos de INSTRUCCIONES.
+InstObjetivo    DB 'ADIVINA LA CLAVE', 0
+InstCombinacion DB 'FORMA UNA COMBINACION', 0
+InstIntento DB 'TIENES VARIOS ', 'INTENTOS', 0
+InstPistas      DB 'UTILIZA LAS PISTAS', 0
+InstPosicion    DB 'REVISA LAS POSICIONES', 0
+InstGanar       DB 'DESCUBRE LA CLAVE', 0
+InstVolver      DB 'ESC PARA VOLVER', 0
+
+
 .CODE
 INCLUDE video.inc
 INCLUDE pantalla.inc
 INCLUDE menu.inc
 INCLUDE tablero.inc
-;INCLUDE credit.inc
-;INCLUDE dific.inc
+INCLUDE credit.inc
+INCLUDE dific.inc
+INCLUDE instruc.inc
 
 MAIN PROC
     MOV AX, @DATA
@@ -60,8 +84,10 @@ MAIN PROC
 
         ; Salir con ESC.
         CMP AL, 27
-        JE Terminar
+        JNE RevisarEnter
+        JMP Terminar
 
+    RevisarEnter:
         ; Detectar ENTER.
         CMP AL, 13
         JE SeleccionarOpcion
@@ -81,18 +107,19 @@ MAIN PROC
         JE AbrirJuego
 
         CMP OpcionMenu, 1
-        ;JE AbrirDificultad
+        JE AbrirDificultad
 
         CMP OpcionMenu, 2
-        ;JE AbrirInstrucciones
+        JE AbrirInstrucciones
 
         CMP OpcionMenu, 3
-
-        ;JE AbrirCreditos
+        JE AbrirCreditos
 
         CMP OpcionMenu, 4
-        JE Terminar
+        JNE OpcionNoSalir
+        JMP Terminar
 
+    OpcionNoSalir:
         JMP EsperarMenu
 
     MenuArriba:
@@ -132,6 +159,19 @@ MAIN PROC
 
     AbrirJuego:
         CALL PantallaJuego
+        JMP EsperarJuego
+
+    AbrirDificultad:
+        CALL PantallaDificultad
+        JMP EsperarJuego
+
+    AbrirInstrucciones:
+        CALL PantallaInstrucciones
+        JMP EsperarJuego
+
+    AbrirCreditos:
+        CALL PantallaCreditos
+        JMP EsperarJuego
 
     EsperarJuego:
         MOV AH, 00H
