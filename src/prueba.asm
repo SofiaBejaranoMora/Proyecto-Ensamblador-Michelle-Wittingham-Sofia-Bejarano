@@ -54,7 +54,7 @@ MAIN PROC
     CALL CargarPaleta
     MOV AX, 0A000H
     MOV ES, AX
-    CALL LimpiarPantalla
+   ; CALL LimpiarPantalla
     CALL PantallaInicio
 
     EsperarInicio:
@@ -71,7 +71,7 @@ MAIN PROC
         JMP EsperarInicio
 
     AbrirMenu:
-        CALL LimpiarPantalla
+        ;CALL LimpiarPantalla
         CALL PantallaMenu
 
     EsperarMenu:
@@ -84,7 +84,10 @@ MAIN PROC
         INT 16H
 
         CMP AL, 27
-        JE Terminar
+        JNE RevisarTeclaMenu
+        JMP Terminar
+
+RevisarTeclaMenu:
 
         CMP AH, 50H
         JE MenuAbajo
@@ -147,20 +150,27 @@ MAIN PROC
         CALL SonidoSeleccion
         JMP ActualizarMenu
 
-    MenuAbajo:
+      MenuAbajo:
         CALL SonidoSeleccion
+
+        ; Borrar antes de cambiar OpcionMenu.
+        CALL BorrarSelector
 
         CMP OpcionMenu, 4
         JE VolverAJugar
 
         INC OpcionMenu
-        JMP ActualizarMenu
+        JMP ActualizarSelector
 
     VolverAJugar:
         MOV OpcionMenu, 0
 
+    ActualizarSelector:
+        CALL DibujarSelector
+        JMP EsperarMenu
+
+    ; Redibujar todo solo al regresar de otra vista.
     ActualizarMenu:
-        ;CALL LimpiarPantalla
         CALL PantallaMenu
         JMP EsperarMenu
 
