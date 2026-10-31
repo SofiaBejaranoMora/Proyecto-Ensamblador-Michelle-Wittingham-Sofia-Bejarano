@@ -1,9 +1,3 @@
-; figuras.inc
-; Cada figura mide 16 x 16 pixeles: 256 bytes.
-; 0 = transparente.
-; Colores aproximados usando la paleta actual de indices 0..20.
-; Sin luna ni fantasma verde. Se conserva el fantasma blanco.
-
 SpriteGato LABEL BYTE
 DB 0,0,0,8,8,0,0,0,0,0,8,8,0,0,0,0
 DB 0,0,8,13,13,8,0,0,0,8,14,14,8,0,0,0
@@ -130,7 +124,6 @@ DB 0,0,0,13,13,15,15,15,15,15,15,15,13,13,0,0
 DB 0,0,0,0,13,13,13,13,13,13,13,13,13,0,0,0
 DB 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 
-; Molly, golden retriever
 SpriteMolly LABEL BYTE
 DB 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 DB 0,0,8,8,8,0,0,0,0,0,0,0,8,8,8,0
@@ -149,7 +142,6 @@ DB 0,0,0,8,20,20,8,20,20,20,8,20,20,8,0,0
 DB 0,0,0,8,20,20,8,20,20,20,8,20,20,8,0,0
 DB 0,0,0,0,8,8,8,8,8,8,8,8,8,0,0,0
 
-; Fantasma blanco
 SpriteFantasma LABEL BYTE
 DB 0,0,0,0,0,8,8,8,8,8,8,8,0,0,0,0
 DB 0,0,0,0,8,3,3,3,3,3,3,3,8,0,0,0
@@ -168,7 +160,6 @@ DB 0,8,8,3,3,3,3,3,3,3,3,3,3,3,8,0
 DB 0,0,0,8,3,3,3,3,3,3,3,3,3,8,0,0
 DB 0,0,0,0,8,8,8,8,8,8,8,8,8,0,0,0
 
-; Flecha de seleccion (8x8).
 SpriteFlecha LABEL BYTE
 DB 4,4,0,0,0,0,0,0
 DB 4,4,4,4,0,0,0,0

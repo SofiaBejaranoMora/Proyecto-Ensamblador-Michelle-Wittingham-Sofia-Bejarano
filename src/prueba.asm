@@ -54,22 +54,18 @@ MAIN PROC
         MOV AH, 00H
         INT 16H
 
-        ; Salir con ESC.
         CMP AL, 27
         JE Terminar
 
-        ; Detectar flecha abajo.
         CMP AH, 50H
         JE MenuAbajo
 
         JMP EsperarMenu
 
     MenuAbajo:
-        ; Comprobar si estamos en SALIR.
         CMP OpcionMenu, 4
         JE VolverAJugar
 
-        ; Pasar a la siguiente opcion.
         INC OpcionMenu
         JMP ActualizarMenu
 
@@ -82,7 +78,6 @@ MAIN PROC
         JMP EsperarMenu
 
     Terminar:
-        ; ENTER y ESC salen de esta prueba. El menu se agregara despues.
         MOV AL, ModoAnterior
         MOV AH, 00H
         INT 10H

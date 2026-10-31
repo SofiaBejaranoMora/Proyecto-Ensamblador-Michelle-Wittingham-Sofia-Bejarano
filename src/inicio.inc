@@ -1,4 +1,3 @@
-; Imagenes de portada. Indice 0 transparente.
 InicioFantasmaAncho EQU 64
 InicioFantasmaAlto EQU 64
 InicioFantasma LABEL BYTE

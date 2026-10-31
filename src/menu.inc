@@ -35,20 +35,16 @@ DibujarSelector ENDP
 PantallaMenu PROC
     PUSH AX
 
-    ; Fondo
     PINTAR_RECT 4, 4, 309, 192, 1
 
-    ; Borde
     PINTAR_RECT 4, 4, 309, 1, 4
     PINTAR_RECT 4, 195, 309, 1, 4
     PINTAR_RECT 4, 4, 1, 192, 4
     PINTAR_RECT 312, 4, 1, 192, 4
 
-    ; Titulo CLAVE ESPECTRAL.
     PINTAR_IMAGEN 54, 13, 85, 26, TextoClave, TextoClaveAncho, TextoClaveAlto
     PINTAR_IMAGEN 150, 13, 115, 26, TextoEspectral, TextoEspectralAncho, TextoEspectralAlto
 
-    ; Linea decorativa debajo del titulo.
     PINTAR_RECT 24, 48, 268, 1, 5
 
     ; Obciones del menu
@@ -58,16 +54,12 @@ PantallaMenu PROC
     PINTAR_IMAGEN 94, 138, 90, 14, TextoCreditos, TextoCreditosAncho, TextoCreditosAlto
     PINTAR_IMAGEN 94, 163, 55, 14, TextoSalir, TextoSalirAncho, TextoSalirAlto
 
-    ; Personajes decorativos.
     PINTAR_IMAGEN 12, 140, 42, 42, SpriteGato, 16, 16
     PINTAR_IMAGEN 250, 140, 42, 42, SpriteCalabaza, 16, 16
 
-    ; Dibujar rectangulo y flecha de seleccion.
     CALL DibujarSelector
 
     POP AX
-
-    ; Procedimiento para dibujar el selector del menu.
 
     RET
 PantallaMenu ENDP
