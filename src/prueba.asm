@@ -3,43 +3,46 @@
 
 INCLUDE macros.inc
 
-
 .DATA
 ModoAnterior DB ?
 OpcionMenu DB 0
-InicioSonido DW 0
-SonidoActivo DB 0
-DifFacil   DB 'FACIL', 0
-DifNormal  DB 'NORMAL', 0
-DifDificil DB 'DIFICIL', 0
-DifVolver  DB 'ESC: VOLVER AL MENU', 0
-CredDesarrollo DB 'DESARROLLADO POR', 0
-CredMichelle   DB 'MICHELLE WITTINGHAM', 0
-CredSofia      DB 'SOFIA BEJARANO', 0
-CredVolver     DB 'ESC: VOLVER AL MENU', 0
-
-InstObjetivo    DB 'ADIVINA LA CLAVE SECRETA.', 0
-InstCombinacion DB 'FORMA UNA COMBINACION DE 4 FICHAS.', 0
-InstIntento     DB 'CADA FILA REPRESENTA UN INTENTO.', 0
-InstPistas      DB 'USA LAS PISTAS PARA ACERTAR.', 0
-InstPosicion    DB 'IMPORTAN LA FICHA Y SU POSICION.', 0
-InstGanar       DB 'DESCUBRE LA CLAVE PARA GANAR.', 0
-InstVolver      DB 'ESC: VOLVER AL MENU', 0
 
 INCLUDE paleta.inc
 INCLUDE figuras.inc
 INCLUDE inicio.inc
 INCLUDE menuDato.inc
 
+
+; Textos de CREDITOS.
+CredDesarrollo DB 'DESARROLLADO POR', 0
+CredMichelle   DB 'MICHELLE', 0
+CredSofia      DB 'SOFIA', 0
+CredVolver     DB 'ESC PARA VOLVER', 0
+
+; Textos de DIFICULTAD.
+DifFacil   DB 'FACIL', 0
+DifNormal  DB 'NORMAL', 0
+DifDificil DB 'DIFICIL', 0
+DifVolver  DB 'ESC PARA VOLVER', 0
+
+; Textos de INSTRUCCIONES.
+InstObjetivo    DB 'ADIVINA LA CLAVE', 0
+InstCombinacion DB 'FORMA UNA COMBINACION', 0
+InstIntento DB 'TIENES VARIOS ', 'INTENTOS', 0
+InstPistas      DB 'UTILIZA LAS PISTAS', 0
+InstPosicion    DB 'REVISA LAS POSICIONES', 0
+InstGanar       DB 'DESCUBRE LA CLAVE', 0
+InstVolver      DB 'ESC PARA VOLVER', 0
+
+
 .CODE
 INCLUDE video.inc
 INCLUDE pantalla.inc
 INCLUDE menu.inc
-INCLUDE dific.inc
-INCLUDE audio.inc
 INCLUDE tablero.inc
-INCLUDE instruc.inc
 INCLUDE credit.inc
+INCLUDE dific.inc
+INCLUDE instruc.inc
 
 MAIN PROC
     MOV AX, @DATA
@@ -54,7 +57,7 @@ MAIN PROC
     CALL CargarPaleta
     MOV AX, 0A000H
     MOV ES, AX
-   ; CALL LimpiarPantalla
+    CALL LimpiarPantalla
     CALL PantallaInicio
 
     EsperarInicio:
@@ -65,39 +68,41 @@ MAIN PROC
         JE AbrirMenu
 
         CMP AL, 27
-        JNE EsperarInicio
+        JNE SeguirEsperandoInicio
         JMP Terminar
 
+    SeguirEsperandoInicio:
         JMP EsperarInicio
 
     AbrirMenu:
-        ;CALL LimpiarPantalla
+        CALL LimpiarPantalla
         CALL PantallaMenu
 
     EsperarMenu:
-        CALL ActualizarSonido
-        MOV AH, 01H
-        INT 16H
-        JZ EsperarMenu
-
-        MOV AH, 00H
+        MOV AH, 10H
         INT 16H
 
+        ; Salir con ESC.
         CMP AL, 27
-        JNE RevisarTeclaMenu
+        JNE RevisarEnter
         JMP Terminar
 
-RevisarTeclaMenu:
+    RevisarEnter:
+        ; Detectar ENTER.
+        CMP AL, 13
+        JE SeleccionarOpcion
 
+        ; Detectar flecha abajo.
         CMP AH, 50H
         JE MenuAbajo
 
-        CMP AL,13
-        JE ElegirOpcion
+        ; Detectar flecha arriba.
+        CMP AH, 48H
+        JE MenuArriba
 
         JMP EsperarMenu
 
-           ElegirOpcion:
+    SeleccionarOpcion:
         CMP OpcionMenu, 0
         JE AbrirJuego
 
@@ -110,73 +115,75 @@ RevisarTeclaMenu:
         CMP OpcionMenu, 3
         JE AbrirCreditos
 
+        CMP OpcionMenu, 4
+        JNE OpcionNoSalir
         JMP Terminar
 
-    AbrirJuego:
-        CALL PantallaJuego
-        JMP VistaAbierta
+    OpcionNoSalir:
+        JMP EsperarMenu
 
-    AbrirDificultad:
-        CALL PantallaDificultad
-        JMP VistaAbierta
-
-    AbrirInstrucciones:
-        CALL PantallaInstrucciones
-        JMP VistaAbierta
-
-    AbrirCreditos:
-        CALL PantallaCreditos
-        JMP VistaAbierta
-
-    VistaAbierta:
-        CALL SonidoSeleccion
-
-    EsperarVista:
-        CALL ActualizarSonido
-
-        MOV AH, 01H
-        INT 16H
-        JZ EsperarVista
-
-        MOV AH, 00H
-        INT 16H
-
-        CMP AL, 27
-        JE SalirVista
-
-        JMP EsperarVista
-
-    SalirVista:
-        CALL SonidoSeleccion
-        JMP ActualizarMenu
-
-      MenuAbajo:
-        CALL SonidoSeleccion
-
-        ; Borrar antes de cambiar OpcionMenu.
+    MenuArriba:
+        ; Borrar el selector de la posicion actual.
         CALL BorrarSelector
 
+        ; Comprobar si estamos en JUGAR.
+        CMP OpcionMenu, 0
+        JE VolverASalir
+
+        ; Pasar a la opcion anterior.
+        DEC OpcionMenu
+        JMP ActualizarMenu
+
+    VolverASalir:
+        MOV OpcionMenu, 4
+        JMP ActualizarMenu
+
+    MenuAbajo:
+        ; Borrar el selector de la posicion actual.
+        CALL BorrarSelector
+
+        ; Comprobar si estamos en SALIR.
         CMP OpcionMenu, 4
         JE VolverAJugar
 
+        ; Pasar a la siguiente opcion.
         INC OpcionMenu
-        JMP ActualizarSelector
+        JMP ActualizarMenu
 
     VolverAJugar:
         MOV OpcionMenu, 0
 
-    ActualizarSelector:
+    ActualizarMenu:
         CALL DibujarSelector
         JMP EsperarMenu
 
-    ; Redibujar todo solo al regresar de otra vista.
-    ActualizarMenu:
-        CALL PantallaMenu
-        JMP EsperarMenu
+    AbrirJuego:
+        CALL PantallaJuego
+        JMP EsperarJuego
+
+    AbrirDificultad:
+        CALL PantallaDificultad
+        JMP EsperarJuego
+
+    AbrirInstrucciones:
+        CALL PantallaInstrucciones
+        JMP EsperarJuego
+
+    AbrirCreditos:
+        CALL PantallaCreditos
+        JMP EsperarJuego
+
+    EsperarJuego:
+        MOV AH, 00H
+        INT 16H
+
+        CMP AL, 27
+        JNE EsperarJuego
+
+        JMP AbrirMenu
 
     Terminar:
-        CALL ApagarSonido
-        
+        ; ENTER y ESC salen de esta prueba. El menu se agregara despues.
         MOV AL, ModoAnterior
         MOV AH, 00H
         INT 10H
