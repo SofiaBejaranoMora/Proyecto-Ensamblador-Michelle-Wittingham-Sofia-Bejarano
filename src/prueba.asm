@@ -16,6 +16,7 @@ INCLUDE menuDato.inc
 INCLUDE video.inc
 INCLUDE pantalla.inc
 INCLUDE menu.inc
+INCLUDE dific.inc
 
 MAIN PROC
     MOV AX, @DATA
