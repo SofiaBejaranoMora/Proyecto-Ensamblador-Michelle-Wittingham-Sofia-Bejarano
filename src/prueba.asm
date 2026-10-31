@@ -3,28 +3,27 @@
 
 INCLUDE macros.inc
 
-
 .DATA
 ModoAnterior DB ?
 OpcionMenu DB 0
 InicioSonido DW 0
 SonidoActivo DB 0
-DifFacil   DB 'FACIL', 0
-DifNormal  DB 'NORMAL', 0
+DifFacil DB 'FACIL', 0
+DifNormal DB 'NORMAL', 0
 DifDificil DB 'DIFICIL', 0
-DifVolver  DB 'ESC: VOLVER AL MENU', 0
+DifVolver DB 'ESC: VOLVER AL MENU', 0
 CredDesarrollo DB 'DESARROLLADO POR', 0
-CredMichelle   DB 'MICHELLE WITTINGHAM', 0
-CredSofia      DB 'SOFIA BEJARANO', 0
-CredVolver     DB 'ESC: VOLVER AL MENU', 0
+CredMichelle DB 'MICHELLE WITTINGHAM', 0
+CredSofia DB 'SOFIA BEJARANO', 0
+CredVolver DB 'ESC: VOLVER AL MENU', 0
 
-InstObjetivo    DB 'ADIVINA LA CLAVE SECRETA.', 0
+InstObjetivo DB 'ADIVINA LA CLAVE SECRETA.', 0
 InstCombinacion DB 'FORMA UNA COMBINACION DE 4 FICHAS.', 0
-InstIntento     DB 'CADA FILA REPRESENTA UN INTENTO.', 0
-InstPistas      DB 'USA LAS PISTAS PARA ACERTAR.', 0
-InstPosicion    DB 'IMPORTAN LA FICHA Y SU POSICION.', 0
-InstGanar       DB 'DESCUBRE LA CLAVE PARA GANAR.', 0
-InstVolver      DB 'ESC: VOLVER AL MENU', 0
+InstIntento DB 'CADA FILA REPRESENTA UN INTENTO.', 0
+InstPistas DB 'USA LAS PISTAS PARA ACERTAR.', 0
+InstPosicion DB 'IMPORTAN LA FICHA Y SU POSICION.', 0
+InstGanar DB 'DESCUBRE LA CLAVE PARA GANAR.', 0
+InstVolver DB 'ESC: VOLVER AL MENU', 0
 
 INCLUDE paleta.inc
 INCLUDE figuras.inc
@@ -54,7 +53,7 @@ MAIN PROC
     CALL CargarPaleta
     MOV AX, 0A000H
     MOV ES, AX
-   ; CALL LimpiarPantalla
+    ; CALL LimpiarPantalla
     CALL PantallaInicio
 
     EsperarInicio:
@@ -80,24 +79,30 @@ MAIN PROC
         INT 16H
         JZ EsperarMenu
 
-        MOV AH, 00H
+        MOV AH, 10H
         INT 16H
 
         CMP AL, 27
         JNE RevisarTeclaMenu
         JMP Terminar
 
-RevisarTeclaMenu:
+    RevisarTeclaMenu:
 
         CMP AH, 50H
         JE MenuAbajo
 
-        CMP AL,13
+        CMP AH, 48H
+        JE MenuArriba
+
+        CMP AL, 13
+        JE ElegirOpcion
+
+        CMP AL, 13
         JE ElegirOpcion
 
         JMP EsperarMenu
 
-           ElegirOpcion:
+    ElegirOpcion:
         CMP OpcionMenu, 0
         JE AbrirJuego
 
@@ -150,7 +155,22 @@ RevisarTeclaMenu:
         CALL SonidoSeleccion
         JMP ActualizarMenu
 
-      MenuAbajo:
+    MenuArriba:
+        CALL SonidoSeleccion
+
+        CALL BorrarSelector
+
+        CMP OpcionMenu, 0
+        JE VolverASalir
+
+        DEC OpcionMenu
+        JMP ActualizarSelector
+
+    VolverASalir:
+        MOV OpcionMenu, 4
+        JMP ActualizarSelector
+
+    MenuAbajo:
         CALL SonidoSeleccion
 
         ; Borrar antes de cambiar OpcionMenu.
@@ -169,14 +189,14 @@ RevisarTeclaMenu:
         CALL DibujarSelector
         JMP EsperarMenu
 
-    ; Redibujar todo solo al regresar de otra vista.
+        ; Redibujar todo solo al regresar de otra vista.
     ActualizarMenu:
         CALL PantallaMenu
         JMP EsperarMenu
 
     Terminar:
         CALL ApagarSonido
-        
+
         MOV AL, ModoAnterior
         MOV AH, 00H
         INT 10H
