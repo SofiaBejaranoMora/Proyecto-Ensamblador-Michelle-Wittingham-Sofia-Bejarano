@@ -24,10 +24,11 @@ DB 63,41,61     ; 18
 DB 63,28,60     ; 19
 DB 61,59,34     ; 20
 
+
 ; Colores del tablero.
-DB  7,10,13     ; 21: fondo azul grisaceo oscuro
-DB 14,19,22     ; 22: paneles pizarra
-DB 44,43,36     ; 23: casillas arena clara
-DB 30,39,40     ; 24: bordes gris verdoso
-DB 22,34,33     ; 25: fila activa verde petroleo
-DB 36,47,43     ; 26: detalles de las filas
+DB 16,  7, 27   ; 21: fondo morado ciruela oscuro
+DB 25, 13, 38   ; 22: paneles violeta oscuro
+DB 47, 42, 52   ; 23: casillas lavanda grisacea clara
+DB 42, 27, 54   ; 24: bordes violeta lavanda
+DB 34, 20, 46   ; 25: fila activa morado malva
+DB 53, 39, 59   ; 26: detalles lavanda luminosa
