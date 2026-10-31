@@ -7,7 +7,6 @@ PantallaCreditos PROC
 
     CALL LimpiarPantalla
 
-    ; Fondo y bordes.
     PINTAR_RECT 4, 4, 309, 192, 1
 
     PINTAR_RECT 4, 4, 309, 1, 4
@@ -15,11 +14,9 @@ PantallaCreditos PROC
     PINTAR_RECT 4, 4, 1, 192, 4
     PINTAR_RECT 312, 4, 1, 192, 4
 
-    ; Titulo CREDITOS.
     PINTAR_IMAGEN 93, 18, 134, 18, TextoCreditos, TextoCreditosAncho, TextoCreditosAlto
     PINTAR_RECT 24, 48, 268, 1, 5
 
-    ; Panel central.
     PINTAR_RECT 30, 61, 260, 83, 2
 
     MOV DH, 9
@@ -37,7 +34,6 @@ PantallaCreditos PROC
     MOV SI, OFFSET CredSofia
     CALL EscribirTextoDificultad
 
-    ; Personajes decorativos.
     PINTAR_IMAGEN 30, 151, 24, 24, SpriteGato, 16, 16
     PINTAR_IMAGEN 266, 151, 24, 24, SpriteCalabaza, 16, 16
 

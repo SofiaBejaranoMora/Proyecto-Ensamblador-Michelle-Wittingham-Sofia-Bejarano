@@ -4,23 +4,19 @@ SonidoSeleccion PROC
     PUSH CX
     PUSH DX
 
-    ; CONFIGURAR CANAL 2 DEL TEMPORIZADOR
     MOV AL, 0B6h
     OUT 43h, AL
 
-    ; CONFIGURAR FRECUENCIA DE 1000 Hz APROX.
     MOV AX, 1193
 
     OUT 42h, AL
     MOV AL, AH
     OUT 42h, AL
 
-    ; ENCENDER ALTAVOZ
     IN AL, 61h
     OR AL, 03h
     OUT 61h, AL
 
-    ; GUARDAR EL TIEMPO DE INICIO
     MOV AH, 00h
     INT 1Ah
 
@@ -33,14 +29,11 @@ SonidoSeleccion PROC
     RET
 SonidoSeleccion ENDP
 
-; ACTUALIZAR DURACION DEL SONIDO
-
 ActualizarSonido PROC
     PUSH AX
     PUSH CX
     PUSH DX
 
-    ; VERIFICAR SI HAY SONIDO ACTIVO
     CMP SonidoActivo, 0
     JE FinActualizarSonido
 
@@ -60,8 +53,6 @@ FinActualizarSonido:
     RET
 ActualizarSonido ENDP
 
-
-; APAGAR ALTAVOZ
 
 ApagarSonido PROC
     PUSH AX

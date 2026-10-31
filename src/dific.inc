@@ -59,9 +59,6 @@ PantallaDificultad PROC
     RET
 PantallaDificultad ENDP
 
-
-; DS:SI apunta a un texto terminado en cero.
-; DH = fila, DL = columna. Cada caracter ocupa 8x8 pixeles.
 EscribirTextoDificultad PROC
     PUSH AX
     PUSH BX
@@ -73,14 +70,12 @@ DifSiguienteLetra:
     CMP AL, 0
     JE DifFinTexto
 
-    ; Posicionar cursor en la pagina cero.
     PUSH AX
     MOV AH, 02H
     XOR BH, BH
     INT 10H
     POP AX
 
-    ; Dibujar un caracter blanco.
     MOV AH, 09H
     XOR BH, BH
     MOV BL, 3

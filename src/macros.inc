@@ -1,4 +1,3 @@
-; Macros para pasar parametros al dibujo. Incluir antes de .DATA.
 PINTAR_RECT MACRO x, y, ancho, alto, color
     MOV AX, x
     PUSH AX
