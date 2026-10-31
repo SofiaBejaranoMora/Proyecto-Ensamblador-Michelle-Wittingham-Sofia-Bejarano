@@ -1,6 +1,28 @@
 ; Rutinas de video. Incluir dentro de .CODE.
 ; DS apunta a datos y ES a A000H. Preservan registros como en cada encabezado.
 
+; Espera el inicio del refresco vertical.
+EsperarRefresco PROC
+    PUSH AX
+    PUSH DX
+
+    MOV DX, 03DAH
+
+RefrescoFinActual:
+    IN AL, DX
+    TEST AL, 08H
+    JNZ RefrescoFinActual
+
+RefrescoComienzo:
+    IN AL, DX
+    TEST AL, 08H
+    JZ RefrescoComienzo
+
+    POP DX
+    POP AX
+    RET
+EsperarRefresco ENDP
+
 ; Carga componentes VGA de 0..63. Conserva AX,CX,DX,SI; deja DF=0.
 CargarPaleta PROC
     PUSH AX

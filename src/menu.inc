@@ -32,6 +32,41 @@ DibujarSelector PROC
     RET
 DibujarSelector ENDP
 
+
+; Borra el selector de su posicion actual.
+BorrarSelector PROC
+    PUSH AX
+    PUSH BX
+
+    ; Calcular posicion Y actual.
+    MOV AL, OpcionMenu
+    MOV BL, 25
+    MUL BL
+    ADD AX, 59
+    MOV BX, AX
+
+    ; Borrar borde superior.
+    PINTAR_RECT 87, BX, 146, 1, 1
+
+    ; Borrar borde inferior.
+    ADD BX, 22
+    PINTAR_RECT 87, BX, 146, 1, 1
+    SUB BX, 22
+
+    ; Borrar bordes laterales.
+    PINTAR_RECT 87, BX, 1, 23, 1
+    PINTAR_RECT 232, BX, 1, 23, 1
+
+    ; Borrar imagen de la flecha.
+    ADD BX, 4
+    PINTAR_RECT 63, BX, 16, 16, 1
+
+    POP BX
+    POP AX
+    RET
+BorrarSelector ENDP
+
+
 PantallaMenu PROC
     PUSH AX
 

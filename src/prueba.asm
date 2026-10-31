@@ -16,7 +16,6 @@ INCLUDE menuDato.inc
 INCLUDE video.inc
 INCLUDE pantalla.inc
 INCLUDE menu.inc
-INCLUDE dific.inc
 
 MAIN PROC
     MOV AX, @DATA
@@ -69,6 +68,9 @@ MAIN PROC
         JMP EsperarMenu
 
     MenuArriba:
+        ; Borrar el selector de la posicion actual.
+        CALL BorrarSelector
+
         ; Comprobar si estamos en JUGAR.
         CMP OpcionMenu, 0
         JE VolverASalir
@@ -82,6 +84,9 @@ MAIN PROC
         JMP ActualizarMenu
 
     MenuAbajo:
+        ; Borrar el selector de la posicion actual.
+        CALL BorrarSelector
+
         ; Comprobar si estamos en SALIR.
         CMP OpcionMenu, 4
         JE VolverAJugar
@@ -94,7 +99,6 @@ MAIN PROC
         MOV OpcionMenu, 0
 
     ActualizarMenu:
-        CALL LimpiarPantalla
         CALL PantallaMenu
         JMP EsperarMenu
 
