@@ -1,115 +1,49 @@
-TAB_FILAS EQU 12
-TAB_POSICIONES EQU 4
-TAB_PASO_FILA EQU 13
-
-TAB_FONDO EQU 21
 TAB_PANEL EQU 22
 TAB_CASILLA EQU 23
 TAB_BORDE EQU 24
-TAB_ACTIVA EQU 25
-TAB_DETALLE EQU 26
 
+; Entrada: reglas de partida. Salida: tablero completo; conserva registros.
 PantallaJuego PROC
     PUSH AX
     PUSH BX
     PUSH CX
     PUSH DX
     PUSH SI
-    PUSH DI
-
     CALL LimpiarPantalla
-
-    ; Fondo y marco exterior.
-    PINTAR_RECT 4, 4, 312, 192, TAB_FONDO
-
-    PINTAR_RECT 4, 4, 312, 1, TAB_BORDE
-    PINTAR_RECT 4, 195, 312, 1, TAB_BORDE
-    PINTAR_RECT 4, 4, 1, 192, TAB_BORDE
-    PINTAR_RECT 315, 4, 1, 192, TAB_BORDE
-
-    ; Titulo.
-    PINTAR_IMAGEN 65, 8, 70, 14, TextoClave, TextoClaveAncho, TextoClaveAlto
-    PINTAR_IMAGEN 144, 8, 110, 14, TextoEspectral, TextoEspectralAncho, TextoEspectralAlto
-
-    PINTAR_RECT 10, 25, 300, 1, TAB_BORDE
-
-    ; Panel de intentos.
-    PINTAR_RECT 8, 29, 204, 158, TAB_PANEL
-    PINTAR_RECT 8, 29, 204, 1, TAB_BORDE
-    PINTAR_RECT 8, 186, 204, 1, TAB_BORDE
-    PINTAR_RECT 8, 29, 1, 158, TAB_BORDE
-    PINTAR_RECT 211, 29, 1, 158, TAB_BORDE
-
-    ; Resaltar el primer intento.
-    PINTAR_RECT 10, 31, 200, 12, TAB_ACTIVA
-
-    MOV SI, 31
+    ; Zonas del enunciado: encabezado, tablero, lateral y barra inferior.
+    PINTAR_RECT 0, 0, 320, 20, 21
+    PINTAR_RECT 4, 22, 196, 168, TAB_PANEL
+    PINTAR_RECT 204, 22, 112, 168, TAB_PANEL
+    PINTAR_RECT 0, 190, 320, 10, 21
+    PINTAR_RECT 4, 22, 196, 1, TAB_BORDE
+    PINTAR_RECT 4, 189, 196, 1, TAB_BORDE
+    PINTAR_RECT 4, 22, 1, 168, TAB_BORDE
+    PINTAR_RECT 199, 22, 1, 168, TAB_BORDE
+    PINTAR_RECT 204, 22, 112, 1, TAB_BORDE
+    PINTAR_RECT 315, 22, 1, 168, TAB_BORDE
+    PINTAR_IMAGEN 8, 3, 48, 14, TextoClave, TextoClaveAncho, TextoClaveAlto
+    PINTAR_IMAGEN 62, 3, 82, 14, TextoEspectral, TextoEspectralAncho, TextoEspectralAlto
+    MOV SI, 24
     XOR CX, CX
     MOV CL, IntentosMaximos
-
-    TabDibujarFila:
-        PUSH CX
-
-        PINTAR_RECT 14, SI, 3, 12, TAB_DETALLE
-
-        MOV BX, 24
-        XOR CX, CX
-        MOV CL, CantidadPosiciones
-
-        TabDibujarCasilla:
-            PINTAR_RECT BX, SI, 16, 12, TAB_CASILLA
-
-            ADD BX, 22
-            LOOP TabDibujarCasilla
-
-        ; Casillas para las pistas.
-        PINTAR_RECT 148, SI, 20, 12, TAB_CASILLA
-        PINTAR_RECT 180, SI, 20, 12, TAB_CASILLA
-
-        ADD SI, TAB_PASO_FILA
-
-        POP CX
-        LOOP TabDibujarFila
-
-    ; Separador y marca de seleccion verde menta.
-    PINTAR_RECT 139, 31, 1, 154, TAB_BORDE
-    PINTAR_RECT 24, 42, 16, 1, 7
-
-    ; Panel de fichas.
-    PINTAR_RECT 220, 29, 91, 158, TAB_PANEL
-
-    PINTAR_RECT 220, 29, 91, 1, TAB_BORDE
-    PINTAR_RECT 220, 186, 91, 1, TAB_BORDE
-    PINTAR_RECT 220, 29, 1, 158, TAB_BORDE
-    PINTAR_RECT 310, 29, 1, 158, TAB_BORDE
-
-    ; Fondos de las fichas.
-    PINTAR_RECT 230, 37, 28, 28, TAB_CASILLA
-    PINTAR_RECT 273, 37, 28, 28, TAB_CASILLA
-
-    PINTAR_RECT 230, 72, 28, 28, TAB_CASILLA
-    PINTAR_RECT 273, 72, 28, 28, TAB_CASILLA
-
-    PINTAR_RECT 230, 107, 28, 28, TAB_CASILLA
-    PINTAR_RECT 273, 107, 28, 28, TAB_CASILLA
-
-    PINTAR_RECT 230, 142, 28, 28, TAB_CASILLA
-    PINTAR_RECT 273, 142, 28, 28, TAB_CASILLA
-
-    ; Personajes.
-    PINTAR_IMAGEN 236, 43, 16, 16, SpriteGato, 16, 16
-    PINTAR_IMAGEN 279, 43, 16, 16, SpriteCalabaza, 16, 16
-
-    PINTAR_IMAGEN 236, 78, 16, 16, SpriteCaldero, 16, 16
-    PINTAR_IMAGEN 279, 78, 16, 16, SpriteDulce, 16, 16
-
-    PINTAR_IMAGEN 236, 113, 16, 16, SpriteSombrero, 16, 16
-    PINTAR_IMAGEN 279, 113, 16, 16, SpriteCuervo, 16, 16
-
-    PINTAR_IMAGEN 236, 148, 16, 16, SpriteBuho, 16, 16
-    PINTAR_IMAGEN 279, 148, 16, 16, SpriteMolly, 16, 16
-
-    POP DI
+TabFila:
+    PUSH CX
+    MOV BX, 24
+    XOR CX, CX
+    MOV CL, CantidadPosiciones
+TabCasilla:
+    PINTAR_RECT BX, SI, 16, 12, TAB_CASILLA
+    ADD BX, 22
+    LOOP TabCasilla
+    PINTAR_RECT 144, SI, 20, 12, TAB_CASILLA
+    PINTAR_RECT 176, SI, 20, 12, TAB_CASILLA
+    ADD SI, 13
+    POP CX
+    LOOP TabFila
+    CALL RedibujarPanelFichas
+    CALL MostrarEstado
+    CALL AyudaJuego
+    CALL DibujarCursorJuego
     POP SI
     POP DX
     POP CX

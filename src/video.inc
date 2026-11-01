@@ -1,3 +1,4 @@
+; Entrada: DS=DATA. Salida: 27 colores DAC cargados; conserva AX,CX,DX,SI.
 CargarPaleta PROC
     PUSH AX
     PUSH CX
@@ -8,7 +9,7 @@ CargarPaleta PROC
     OUT DX, AL
     INC DX
     MOV SI, OFFSET Paleta
-    MOV CX, CANTIDAD_COLORES * 3
+    MOV CX, 27 * 3
     CLD
 CargarComponente:
     LODSB
@@ -21,6 +22,7 @@ CargarComponente:
     RET
 CargarPaleta ENDP
 
+; Entrada: ES=A000h. Salida: pantalla negra; conserva AX,CX,DI; DF=0.
 LimpiarPantalla PROC
     PUSH AX
     PUSH CX
@@ -36,6 +38,7 @@ LimpiarPantalla PROC
     RET
 LimpiarPantalla ENDP
 
+; Pila: X,Y,ancho,alto,color (palabras). ES=A000h; conserva registros; RET 10.
 DibujarRectangulo PROC
     PUSH BP
     MOV BP, SP
@@ -67,7 +70,9 @@ FilaRectangulo:
     RET 10
 DibujarRectangulo ENDP
 
-DibujarImagen PROC
+; Pila: X,Y,ancho,alto,anchoOrigen,altoOrigen,puntero. DS=datos, ES=A000h.
+; Omite indice 0. Conserva registros; RET 14. Dimensiones positivas dentro de pantalla.
+DibujarSprite PROC
     PUSH BP
     MOV BP, SP
     SUB SP, 8
@@ -125,5 +130,5 @@ OmitirPixel:
     MOV SP, BP
     POP BP
     RET 14
-DibujarImagen ENDP
+DibujarSprite ENDP
 

@@ -1,4 +1,3 @@
-CANTIDAD_COLORES EQU 27
 Paleta LABEL BYTE
 
 ; Colores originales de los textos y personajes.

@@ -1,5 +1,3 @@
-TextoJugarAncho EQU 59
-TextoJugarAlto EQU 15
 TextoJugar LABEL BYTE
 DB 0,0,0,3,3,3,3,3,0,3,3,3,3,0,0,0
 DB 0,3,3,3,3,0,0,0,0,0,3,3,3,3,3,3
@@ -327,8 +325,6 @@ DB 0,0,0,0,0,3,3,3,3,3,0,0,0,3,3,3
 DB 3,3,0,0,0,0,0,0,0,3,3,3,3,3,0,0
 DB 0,0,0,0,0,3,3,3,3,3,0,0
 
-TextoSalirAncho EQU 51
-TextoSalirAlto EQU 12
 TextoSalir LABEL BYTE
 DB 0,0,3,3,3,3,3,0,0,0,0,0,0,0,0,3
 DB 3,0,0,0,0,0,0,3,3,3,3,3,0,0,0,0

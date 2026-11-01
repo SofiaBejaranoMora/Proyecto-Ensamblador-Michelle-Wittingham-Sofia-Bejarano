@@ -1,4 +1,5 @@
 
+; Sin parametros. Activa pitido y guarda tick inicial; conserva AX,CX,DX.
 SonidoSeleccion PROC
     PUSH AX
     PUSH CX
@@ -29,6 +30,7 @@ SonidoSeleccion PROC
     RET
 SonidoSeleccion ENDP
 
+; Sin parametros. Apaga tras dos ticks si esta activo; conserva AX,CX,DX.
 ActualizarSonido PROC
     PUSH AX
     PUSH CX
@@ -54,6 +56,7 @@ FinActualizarSonido:
 ActualizarSonido ENDP
 
 
+; Sin parametros. Desactiva altavoz y SonidoActivo; conserva AX.
 ApagarSonido PROC
     PUSH AX
 

@@ -1,3 +1,4 @@
+; Entrada: ES=A000h, DS=DATA. Salida: portada; conserva AX.
 PantallaInicio PROC
     PUSH AX
 
@@ -12,7 +13,8 @@ PantallaInicio PROC
 
     PINTAR_IMAGEN 74, 70, 65, 70, SpriteFantasma, 16, 16
     PINTAR_IMAGEN 160, 72, 79, 67, SpriteCalabaza, 16, 16
-    PINTAR_IMAGEN 42, 155, 237, 25, TextoEnter, TextoEnterAncho, TextoEnterAlto
+    PINTAR_IMAGEN 42, 155, 237, 25, TextoEnter, 202, 14
+    ESCRIBIR_TEXTO 23, 1, 'MICHELLE WITTINGHAM / SOFIA BEJARANO'
     POP AX
     RET
 PantallaInicio ENDP

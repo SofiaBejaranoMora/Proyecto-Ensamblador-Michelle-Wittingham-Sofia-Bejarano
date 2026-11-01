@@ -2,6 +2,7 @@
 ; Pantalla de dificultad.
 ; Requiere macros.inc, video.inc, menuDato.inc y audio.inc.
 
+; Entrada: OpcionDificultad. Salida: pantalla y selector; conserva registros.
 PantallaDificultad PROC
     PUSH AX
     PUSH BX
@@ -30,28 +31,16 @@ PantallaDificultad PROC
     PINTAR_RECT 88, 126, 144, 24, 2
 
     ; Texto FACIL.
-    MOV DH, 9
-    MOV DL, 17
-    MOV SI, OFFSET DifFacil
-    CALL EscribirTextoDificultad
+    ESCRIBIR_TEXTO 9, 17, 'FACIL'
 
     ; Texto NORMAL.
-    MOV DH, 13
-    MOV DL, 17
-    MOV SI, OFFSET DifNormal
-    CALL EscribirTextoDificultad
+    ESCRIBIR_TEXTO 13, 17, 'NORMAL'
 
     ; Texto DIFICIL.
-    MOV DH, 17
-    MOV DL, 17
-    MOV SI, OFFSET DifDificil
-    CALL EscribirTextoDificultad
+    ESCRIBIR_TEXTO 17, 17, 'DIFICIL'
 
     ; Indicacion inferior.
-    MOV DH, 22
-    MOV DL, 9
-    MOV SI, OFFSET DifVolver
-    CALL EscribirTextoDificultad
+    ESCRIBIR_TEXTO 22, 9, 'ESC: VOLVER AL MENU'
 
     ; Dibujar la opcion seleccionada.
     CALL DibujarSelectorDificultad
@@ -66,6 +55,8 @@ PantallaDificultad ENDP
 
 
 ; Escribir textos en pantalla.
+; Entrada: DS:SI=cadena terminada en cero, DH=fila, DL=columna.
+; Salida: texto blanco. Conserva AX,BX,CX,DX,SI; requiere DF=0.
 EscribirTextoDificultad PROC
     PUSH AX
     PUSH BX
@@ -105,6 +96,7 @@ EscribirTextoDificultad ENDP
 
 
 ; Dibujar la flecha de seleccion.
+; Entrada: OpcionDificultad. Salida: flecha dibujada; conserva AX,BX.
 DibujarSelectorDificultad PROC
     PUSH AX
     PUSH BX
@@ -124,6 +116,7 @@ DibujarSelectorDificultad ENDP
 
 
 ; Borrar la flecha anterior.
+; Entrada: OpcionDificultad anterior. Salida: flecha borrada; conserva AX,BX.
 BorrarSelectorDificultad PROC
     PUSH AX
     PUSH BX
@@ -143,6 +136,7 @@ BorrarSelectorDificultad ENDP
 
 
 ; Control de seleccion de dificultad.
+; Entrada: NivelActual. Salida: Enter actualiza el nivel; Esc cancela; conserva AX.
 SeleccionarDificultad PROC
     PUSH AX
 

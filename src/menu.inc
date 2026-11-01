@@ -1,6 +1,7 @@
 ; Pantalla del menu principal.
 ; Requiere macros.inc, figuras.inc y video.inc.
 
+; Entrada: OpcionMenu. Salida: borde y flecha dibujados; conserva AX,BX.
 DibujarSelector PROC
     PUSH AX
     PUSH BX
@@ -34,6 +35,7 @@ DibujarSelector ENDP
 
 
 ; Borra el selector de su posicion actual.
+; Entrada: OpcionMenu anterior. Salida: selector borrado; conserva AX,BX.
 BorrarSelector PROC
     PUSH AX
     PUSH BX
@@ -67,8 +69,16 @@ BorrarSelector PROC
 BorrarSelector ENDP
 
 
+; Entrada: ES=A000h, DS=DATA. Salida: menu completo; conserva AX.
 PantallaMenu PROC
     PUSH AX
+
+    ; Limpiar los margenes que el fondo del menu no cubre.
+    ; El juego escribe mensajes hasta la ultima fila de pantalla.
+    PINTAR_RECT 0, 196, 320, 4, 8
+    PINTAR_RECT 0, 0, 320, 4, 8
+    PINTAR_RECT 0, 4, 4, 192, 8
+    PINTAR_RECT 313, 4, 7, 192, 8
 
     PINTAR_RECT 4, 4, 309, 192, 1
 
@@ -83,15 +93,16 @@ PantallaMenu PROC
     PINTAR_RECT 24, 48, 268, 1, 5
 
     ; Obciones del menu
-    PINTAR_IMAGEN 98, 63, 62, 16, TextoJugar, TextoJugarAncho, TextoJugarAlto
+    PINTAR_IMAGEN 98, 63, 62, 16, TextoJugar, 59, 15
     PINTAR_IMAGEN 94, 88, 105, 14, TextoDificultad, TextoDificultadAncho, TextoDificultadAlto
     PINTAR_IMAGEN 94, 113, 136, 14, TextoInstrucciones, TextoInstruccionesAncho, TextoInstruccionesAlto
     PINTAR_IMAGEN 94, 138, 90, 14, TextoCreditos, TextoCreditosAncho, TextoCreditosAlto
-    PINTAR_IMAGEN 94, 163, 55, 14, TextoSalir, TextoSalirAncho, TextoSalirAlto
+    PINTAR_IMAGEN 94, 163, 55, 14, TextoSalir, 51, 12
 
     PINTAR_IMAGEN 12, 140, 42, 42, SpriteGato, 16, 16
     PINTAR_IMAGEN 250, 140, 42, 42, SpriteCalabaza, 16, 16
 
+    ESCRIBIR_TEXTO 23, 8, 'F2: CLAVE DE PRUEBA'
     CALL DibujarSelector
 
     POP AX

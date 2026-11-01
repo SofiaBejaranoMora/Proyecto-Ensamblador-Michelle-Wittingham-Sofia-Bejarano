@@ -1,3 +1,4 @@
+; Entrada: ES=A000h, DS=DATA. Salida: reglas con ejemplo grafico; conserva registros.
 PantallaInstrucciones PROC
     PUSH AX
     PUSH BX
@@ -18,41 +19,25 @@ PantallaInstrucciones PROC
 
     PINTAR_RECT 16, 59, 288, 103, 2
 
-    MOV DH, 8
-    MOV DL, 3
-    MOV SI, OFFSET InstObjetivo
-    CALL EscribirTextoDificultad
+    ESCRIBIR_TEXTO 8, 3, 'ADIVINA LA CLAVE SECRETA.'
 
-    MOV DH, 10
-    MOV DL, 3
-    MOV SI, OFFSET InstCombinacion
-    CALL EscribirTextoDificultad
+    ESCRIBIR_TEXTO 10, 3, 'FORMA UNA COMBINACION DE 4 FICHAS.'
 
-    MOV DH, 12
-    MOV DL, 3
-    MOV SI, OFFSET InstIntento
-    CALL EscribirTextoDificultad
+    ESCRIBIR_TEXTO 12, 3, 'IZQ/DER: CASILLA. ARR/ABA: FICHA.'
 
-    MOV DH, 14
-    MOV DL, 3
-    MOV SI, OFFSET InstPistas
-    CALL EscribirTextoDificultad
+    ESCRIBIR_TEXTO 14, 3, 'ENTER: EVALUAR. BACKSPACE: BORRAR.'
 
-    MOV DH, 16
-    MOV DL, 3
-    MOV SI, OFFSET InstPosicion
-    CALL EscribirTextoDificultad
+    ESCRIBIR_TEXTO 16, 3, 'VERDE=TOROS. NARANJA=VACAS.'
 
-    MOV DH, 18
-    MOV DL, 3
-    MOV SI, OFFSET InstGanar
-    CALL EscribirTextoDificultad
+    ESCRIBIR_TEXTO 18, 3, 'TORO: EXACTA. VACA: OTRO LUGAR.'
 
-    MOV DH, 22
-    MOV DL, 11
-    MOV SI, OFFSET InstVolver
-    CALL EscribirTextoDificultad
+    ESCRIBIR_TEXTO 22, 11, 'ESC: VOLVER AL MENU'
 
+    PINTAR_IMAGEN 40, 164, 16, 16, SpriteGato, 16, 16
+    PINTAR_IMAGEN 72, 164, 16, 16, SpriteCalabaza, 16, 16
+    PINTAR_RECT 104, 164, 3, 8, 7
+    PINTAR_RECT 116, 164, 3, 8, 12
+    ESCRIBIR_TEXTO 21, 16, '1 TORO / 1 VACA'
     POP SI
     POP DX
     POP CX

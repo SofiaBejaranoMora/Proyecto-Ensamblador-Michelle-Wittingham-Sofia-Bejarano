@@ -27,5 +27,26 @@ PINTAR_IMAGEN MACRO x, y, ancho, alto, datos, anchoOrigen, altoOrigen
     PUSH AX
     MOV AX, OFFSET datos
     PUSH AX
-    CALL DibujarImagen
+    CALL DibujarSprite
+ENDM
+
+; Texto literal en la posicion indicada (fila, columna de 8x8).
+; La cadena queda en CODE, saltada por JMP; DS se restaura al terminar.
+ESCRIBIR_TEXTO MACRO fila, columna, texto
+    LOCAL cadena, mostrar
+    JMP NEAR PTR mostrar
+cadena DB texto, 0
+mostrar:
+    PUSH DS
+    PUSH DX
+    PUSH SI
+    PUSH CS
+    POP DS
+    MOV DH, fila
+    MOV DL, columna
+    MOV SI, OFFSET cadena
+    CALL EscribirTextoDificultad
+    POP SI
+    POP DX
+    POP DS
 ENDM

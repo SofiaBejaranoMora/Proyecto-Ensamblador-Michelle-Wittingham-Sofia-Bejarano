@@ -1,3 +1,4 @@
+; Entrada: ES=A000h, DS=DATA. Salida: creditos; conserva registros.
 PantallaCreditos PROC
     PUSH AX
     PUSH BX
@@ -19,28 +20,16 @@ PantallaCreditos PROC
 
     PINTAR_RECT 30, 61, 260, 83, 2
 
-    MOV DH, 9
-    MOV DL, 12
-    MOV SI, OFFSET CredDesarrollo
-    CALL EscribirTextoDificultad
+    ESCRIBIR_TEXTO 9, 12, 'DESARROLLADO POR'
 
-    MOV DH, 12
-    MOV DL, 10
-    MOV SI, OFFSET CredMichelle
-    CALL EscribirTextoDificultad
+    ESCRIBIR_TEXTO 12, 10, 'MICHELLE WITTINGHAM'
 
-    MOV DH, 15
-    MOV DL, 12
-    MOV SI, OFFSET CredSofia
-    CALL EscribirTextoDificultad
+    ESCRIBIR_TEXTO 15, 12, 'SOFIA BEJARANO'
 
     PINTAR_IMAGEN 30, 151, 24, 24, SpriteGato, 16, 16
     PINTAR_IMAGEN 266, 151, 24, 24, SpriteCalabaza, 16, 16
 
-    MOV DH, 22
-    MOV DL, 11
-    MOV SI, OFFSET CredVolver
-    CALL EscribirTextoDificultad
+    ESCRIBIR_TEXTO 22, 11, 'ESC: VOLVER AL MENU'
 
     POP SI
     POP DX
