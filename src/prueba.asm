@@ -34,6 +34,12 @@ UsadoIntento DB 5 DUP(0)
 ; Combinaciones.
 CodigoSecreto DB 5 DUP(0)
 IntentoActual DB 5 DUP(0)
+; Estado del modo inverso.
+InversoClaveJugador DB 5 DUP(0)
+InversoCandidatoFicha DB 5 DUP(0)
+InversoIndiceCandidato DW 0
+InversoTotalCandidatos DW 0
+InversoEsCompatible DB 0
 Historial DB 60 DUP(0) ; 12 intentos, cinco espacios por intento.
 HistorialToros DB 12 DUP(0)
 HistorialVacas DB 12 DUP(0)
