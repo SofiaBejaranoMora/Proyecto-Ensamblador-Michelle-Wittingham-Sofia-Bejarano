@@ -108,7 +108,12 @@ ColumnaImagen:
     ADD SI, AX
     MOV AL, [SI]
     CMP AL, 0
+    JNE EscribirPixelSprite
+    ; Animacion: escribir el fondo en la misma pasada evita un cuadro vacio.
+    MOV AL, FondoSprite
+    CMP AL, 0
     JE OmitirPixel
+EscribirPixelSprite:
     MOV ES:[DI], AL
 OmitirPixel:
     INC DI

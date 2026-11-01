@@ -20,7 +20,7 @@ cycles=20000
 [autoexec]
 mount c "$trabajo"
 c:
-tasm /m2 /w2 prueba.asm > build.log
+tasm /m5 /w2 prueba.asm > build.log
 tlink prueba.obj > link.log
 $test
 exit

@@ -252,11 +252,17 @@ PruebaColocarSecreto:
     MOV AX, 000DH
     CALL EditarIntento
     CMP PartidaTerminada, 1
-    JNE SHORT PruebaPartidaFallo
+    JE SaltoLocalPruebas1
+    JMP PruebaPartidaFallo
+SaltoLocalPruebas1:
     CMP TurnoActual, 1
-    JNE SHORT PruebaPartidaFallo
+    JE SaltoLocalPruebas2
+    JMP PruebaPartidaFallo
+SaltoLocalPruebas2:
     CMP HistorialToros[0], 4
-    JNE SHORT PruebaPartidaFallo
+    JE SaltoLocalPruebas3
+    JMP PruebaPartidaFallo
+SaltoLocalPruebas3:
     CALL AnimarFinal
     CALL CapturarTablero
     ; Derrota: secreto 1111, diez intentos 2222.
@@ -275,13 +281,21 @@ PruebaIntentoFallido:
     CALL ConfirmarIntento
     LOOP PruebaIntentoFallido
     CMP PartidaTerminada, 2
-    JNE SHORT PruebaPartidaFallo
+    JE SaltoLocalPruebas4
+    JMP PruebaPartidaFallo
+SaltoLocalPruebas4:
     CMP TurnoActual, 10
-    JNE SHORT PruebaPartidaFallo
+    JE SaltoLocalPruebas5
+    JMP PruebaPartidaFallo
+SaltoLocalPruebas5:
     CMP Historial[45], 2
-    JNE SHORT PruebaPartidaFallo
+    JE SaltoLocalPruebas6
+    JMP PruebaPartidaFallo
+SaltoLocalPruebas6:
     CMP HistorialToros[9], 0
-    JNE SHORT PruebaPartidaFallo
+    JE SaltoLocalPruebas7
+    JMP PruebaPartidaFallo
+SaltoLocalPruebas7:
     CALL AnimarFinal
     CALL CapturarTablero
     JMP PruebaPartidaFin

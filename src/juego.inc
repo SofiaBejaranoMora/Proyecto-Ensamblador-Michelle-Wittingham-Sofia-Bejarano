@@ -380,11 +380,13 @@ EditarDigito:
     JA EditarFlechas
     SUB AL, '0'
     CMP AL, CantidadFichas
-    JA SHORT EditarFin
+    JBE SaltoLocalJuego1
+    JMP EditarFin
+SaltoLocalJuego1:
     MOV FichaSeleccionada, AL
     CALL RedibujarPanelFichas
     CALL ColocarFicha
-    JMP SHORT EditarFin
+    JMP EditarFin
 EditarFlechas:
     CMP AH, 4BH
     JNE EditarDerecha

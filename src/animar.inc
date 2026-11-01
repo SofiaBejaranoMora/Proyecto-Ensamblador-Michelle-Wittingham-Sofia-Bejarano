@@ -30,13 +30,12 @@ AnimarPortada PROC
     PUSH AX
     CALL AvanzarAnimacion
     JNC PortadaAnimacionFin
-    PINTAR_RECT 74, 70, 65, 70, 1
     CMP CuadroAnimacion, 0
     JNE PortadaSegundoCuadro
-    PINTAR_IMAGEN 74, 70, 65, 70, SpriteFantasma, 16, 16
+    PINTAR_ANIMACION 74, 70, 65, 70, SpriteFantasma, 16, 16, 1
     JMP PortadaAnimacionFin
 PortadaSegundoCuadro:
-    PINTAR_IMAGEN 74, 70, 65, 70, SpriteFantasma2, 16, 16
+    PINTAR_ANIMACION 74, 70, 65, 70, SpriteFantasma2, 16, 16, 1
 PortadaAnimacionFin:
     POP AX
     RET
@@ -53,10 +52,11 @@ AnimarSeleccion PROC
     CALL CalcularMarcaFicha
     ADD BX, 6
     ADD DX, 2
-    PINTAR_RECT BX, DX, 16, 16, TAB_CASILLA
+    MOV FondoSprite, TAB_CASILLA
     MOV AL, FichaSeleccionada
     MOV CX, 16
     CALL DibujarPersonaje
+    MOV FondoSprite, 0
 SeleccionAnimacionFin:
     POP DX
     POP CX
@@ -65,7 +65,7 @@ SeleccionAnimacionFin:
     RET
 AnimarSeleccion ENDP
 
-; Victoria: calabaza que salta. Derrota: fantasma que se sacude.
+; Victoria y derrota usan personajes distintos con dos posturas.
 ; Sin parametros ni retorno; conserva AX.
 AnimarFinal PROC
     PUSH AX
@@ -80,23 +80,22 @@ AnimarFinal ENDP
 ; Dibuja inmediatamente el cuadro actual del resultado. Conserva AX.
 DibujarCuadroFinal PROC
     PUSH AX
-    PINTAR_RECT 132, 108, 56, 48, 21
     CMP PartidaTerminada, 1
     JNE FinalAnimacionDerrota
     CMP CuadroAnimacion, 0
     JNE FinalVictoriaSegundo
-    PINTAR_IMAGEN 140, 116, 40, 32, SpriteCalabaza, 16, 16
+    PINTAR_ANIMACION 140, 112, 40, 40, SpriteCalabaza, 16, 16, 21
     JMP CuadroFinalListo
 FinalVictoriaSegundo:
-    PINTAR_IMAGEN 140, 108, 40, 32, SpriteCalabaza2, 16, 16
+    PINTAR_ANIMACION 140, 112, 40, 40, SpriteCalabaza2, 16, 16, 21
     JMP CuadroFinalListo
 FinalAnimacionDerrota:
     CMP CuadroAnimacion, 0
     JNE FinalDerrotaSegundo
-    PINTAR_IMAGEN 136, 116, 40, 32, SpriteFantasma, 16, 16
+    PINTAR_ANIMACION 140, 112, 40, 40, SpriteFantasma, 16, 16, 21
     JMP CuadroFinalListo
 FinalDerrotaSegundo:
-    PINTAR_IMAGEN 148, 116, 32, 32, SpriteFantasma2, 16, 16
+    PINTAR_ANIMACION 140, 112, 40, 40, SpriteFantasma2, 16, 16, 21
 CuadroFinalListo:
     POP AX
     RET

@@ -50,3 +50,10 @@ mostrar:
     POP DX
     POP DS
 ENDM
+
+; Dibuja un cuadro completo: personaje y fondo juntos, sin borrado previo.
+PINTAR_ANIMACION MACRO x, y, ancho, alto, datos, anchoOrigen, altoOrigen, fondo
+    MOV FondoSprite, fondo
+    PINTAR_IMAGEN x, y, ancho, alto, datos, anchoOrigen, altoOrigen
+    MOV FondoSprite, 0
+ENDM

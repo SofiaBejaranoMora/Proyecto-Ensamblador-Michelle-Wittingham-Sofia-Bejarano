@@ -18,7 +18,7 @@ Las rutas predeterminadas corresponden al equipo de desarrollo. Para otro equipo
 powershell -ExecutionPolicy Bypass -File .\herramientas\compilar.ps1 -DosBox "C:\DOSBox\DOSBox.exe" -Tasm "C:\TASM" -Pruebas
 ```
 
-El script monta una copia temporal, ensambla con `tasm /m2 /w2 prueba.asm`, enlaza con
+El script monta una copia temporal, ensambla con `tasm /m5 /w2 prueba.asm`, enlaza con
 `tlink prueba.obj` y ejecuta `prueba.exe /T`. Publica el ejecutable en `bin/CLAVE.EXE`
 y guarda los registros. El modo /T usa las mismas rutinas de evaluacion del juego.
 
@@ -29,7 +29,7 @@ mount c "C:\GITHUB\Proyecto-Ensamblador-Michelle-Wittingham-Sofia-Bejarano"
 mount t "C:\TASM"
 c:
 cd src
-t:\tasm /m2 /w2 prueba.asm
+t:\tasm /m5 /w2 prueba.asm
 t:\tlink prueba.obj
 prueba.exe
 ```

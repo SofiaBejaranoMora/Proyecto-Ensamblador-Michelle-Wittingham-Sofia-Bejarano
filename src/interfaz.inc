@@ -69,12 +69,23 @@ PanelOtraFicha:
     MOV AX, SI
     MOV FichaSeleccionada, AL
     CALL CalcularMarcaFicha
-    PINTAR_RECT BX, DX, 28, 26, TAB_CASILLA
+    ; Pintar los margenes sin borrar el personaje que ya se ve.
+    PINTAR_RECT BX, DX, 28, 2, TAB_CASILLA
+    ADD DX, 2
+    PINTAR_RECT BX, DX, 6, 16, TAB_CASILLA
+    ADD BX, 22
+    PINTAR_RECT BX, DX, 6, 16, TAB_CASILLA
+    SUB BX, 22
+    ADD DX, 16
+    PINTAR_RECT BX, DX, 28, 8, TAB_CASILLA
+    SUB DX, 18
     ADD BX, 6
     ADD DX, 2
     MOV AX, SI
     MOV CX, 16
+    MOV FondoSprite, TAB_CASILLA
     CALL DibujarPersonaje
+    MOV FondoSprite, 0
     ; Etiqueta 1..8 segun el orden de las fichas.
     ADD BX, 14
     ADD DX, 18

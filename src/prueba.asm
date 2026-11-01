@@ -43,6 +43,8 @@ HayCodigoAnterior DB 0
 ClaveManual DB 0
 TickAnimacion DW 0
 CuadroAnimacion DB 0
+; Cero conserva transparencia; otro indice rellena el fondo al animar.
+FondoSprite DB 0
 PruebasFallidas DB 0
 
 INCLUDE paleta.inc
@@ -135,7 +137,7 @@ MAIN PROC
     RevisarAbajoMenu:
         CMP AH, 50H
         JNE RevisarArriba
-        JMP SHORT MenuAbajo
+        JMP MenuAbajo
     RevisarArriba:
         CMP AH, 48H
         JNE RevisarEnterMenu
@@ -153,7 +155,7 @@ MAIN PROC
         JE AbrirInstrucciones
         CMP OpcionMenu, 3
         JE AbrirCreditos
-        JMP SHORT Terminar
+        JMP Terminar
     AbrirJuego:
         CALL IniciarPartida
         CALL PantallaJuego
