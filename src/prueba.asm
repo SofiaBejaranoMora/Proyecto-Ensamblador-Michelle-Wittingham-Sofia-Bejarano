@@ -1,5 +1,5 @@
 .MODEL SMALL
-JUMPS ; TASM amplía los saltos condicionales que exceden el alcance 8086.
+JUMPS ; TASM amplï¿½a los saltos condicionales que exceden el alcance 8086.
 .STACK 100H
 
 INCLUDE macros.inc
@@ -11,7 +11,6 @@ InicioSonido DW 0
 SonidoActivo DB 0
 NivelActual DB 0
 OpcionDificultad DB 0
-
 
 ; Reglas de la partida.
 CantidadPosiciones DB 4
@@ -52,18 +51,18 @@ FuenteTexto DB 2048 DUP(0)
 PruebasFallidas DB 0
 ModoPruebas DB 0
 ; Reloj BIOS de 32 bits y tiempo visible (hasta 99:59).
-TickReloj DW 0,0
-TicksPartida DW 0,0
+TickReloj DW 0, 0
+TicksPartida DW 0, 0
 SegundosJuego DW 0
 SegundosMostrados DW 0FFFFH
 RelojActivo DB 0
 ; Tres records por nivel: intento (byte) y segundos (palabra).
-NombreRecords DB 'RECORDS.DAT',0
-NombreRecordsPrueba DB 'PRUEBREC.TMP',0
-NombreRecordsBloqueado DB 'Z:\RECORDS.DAT',0
+NombreRecords DB 'RECORDS.DAT', 0
+NombreRecordsPrueba DB 'PRUEBREC.TMP', 0
+NombreRecordsBloqueado DB 'Z:\RECORDS.DAT', 0
 RutaRecords DW OFFSET NombreRecords
 FirmaRecords DB 'CE01'
-Records DB 9 DUP(255,255,255)
+Records DB 9 DUP(255, 255, 255)
 BufferRecords DB 32 DUP(0)
 NuevoRecord DB 0
 EstadoArchivo DB 0
@@ -71,20 +70,20 @@ EstadoArchivo DB 0
 INCLUDE paleta.inc
 INCLUDE figuras.inc
 INCLUDE cuadros.inc
-Digitos DB 7,5,5,5,7, 2,6,2,2,7, 7,1,7,4,7, 7,1,7,1,7
-        DB 5,5,7,1,1, 7,4,7,1,7, 7,4,7,5,7, 7,1,1,1,1
-        DB 7,5,7,5,7, 7,5,7,1,7
-CasosPrueba DB 1,2,3,4, 1,3,2,4, 2,2
-            DB 1,1,2,3, 1,2,1,1, 1,2
-            DB 1,2,3,4, 5,6,5,6, 0,0
-            DB 3,3,3,3, 3,3,1,1, 2,0
+Digitos DB 7, 5, 5, 5, 7, 2, 6, 2, 2, 7, 7, 1, 7, 4, 7, 7, 1, 7, 1, 7
+DB 5, 5, 7, 1, 1, 7, 4, 7, 1, 7, 7, 4, 7, 5, 7, 7, 1, 1, 1, 1
+DB 7, 5, 7, 5, 7, 7, 5, 7, 1, 7
+CasosPrueba DB 1, 2, 3, 4, 1, 3, 2, 4, 2, 2
+DB 1, 1, 2, 3, 1, 2, 1, 1, 1, 2
+DB 1, 2, 3, 4, 5, 6, 5, 6, 0, 0
+DB 3, 3, 3, 3, 3, 3, 1, 1, 2, 0
 ; Una tabla permite dibujar cualquier ficha con la misma rutina.
 Fichas DW OFFSET SpriteGato, OFFSET SpriteCalabaza, OFFSET SpriteCaldero
-       DW OFFSET SpriteDulce, OFFSET SpriteSombrero, OFFSET SpriteCuervo
-       DW OFFSET SpriteBuho, OFFSET SpriteMolly
+DW OFFSET SpriteDulce, OFFSET SpriteSombrero, OFFSET SpriteCuervo
+DW OFFSET SpriteBuho, OFFSET SpriteMolly
 FichasAnimadas DW OFFSET SpriteGato2, OFFSET SpriteCalabaza2, OFFSET SpriteCaldero2
-       DW OFFSET SpriteDulce2, OFFSET SpriteSombrero2, OFFSET SpriteCuervo2
-       DW OFFSET SpriteBuho2, OFFSET SpriteMolly2
+DW OFFSET SpriteDulce2, OFFSET SpriteSombrero2, OFFSET SpriteCuervo2
+DW OFFSET SpriteBuho2, OFFSET SpriteMolly2
 INCLUDE inicio.inc
 INCLUDE menuDato.inc
 
@@ -103,6 +102,7 @@ INCLUDE animar.inc
 INCLUDE pruebas.inc
 INCLUDE tiempo.inc
 INCLUDE records.inc
+INCLUDE inverso.inc
 
 MAIN PROC
     MOV AX, @DATA
@@ -150,10 +150,14 @@ MAIN PROC
         JNE RevisarTeclaMenu
         JMP Terminar
     RevisarTeclaMenu:
+        CMP AH, 3EH
+        JNE RevisarRecordsMenu
+
+        CALL IniciarModoInverso
+        JMP ActualizarMenu
+    RevisarRecordsMenu:
         CMP AH, 3DH
         JNE RevisarPruebaManual
-        CALL ConsultarRecords
-        JMP ActualizarMenu
     RevisarPruebaManual:
         CMP AH, 3CH
         JNE RevisarAbajoMenu

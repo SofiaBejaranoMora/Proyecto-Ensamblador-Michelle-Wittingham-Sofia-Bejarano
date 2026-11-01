@@ -33,7 +33,6 @@ DibujarSelector PROC
     RET
 DibujarSelector ENDP
 
-
 ; Borra el selector de su posicion actual.
 ; Entrada: OpcionMenu anterior. Salida: selector borrado; conserva AX,BX.
 BorrarSelector PROC
@@ -68,7 +67,6 @@ BorrarSelector PROC
     RET
 BorrarSelector ENDP
 
-
 ; Entrada: ES=A000h, DS=DATA. Salida: menu completo; conserva AX.
 PantallaMenu PROC
     PUSH AX
@@ -102,7 +100,7 @@ PantallaMenu PROC
     PINTAR_IMAGEN 12, 140, 42, 42, SpriteGato, 16, 16
     PINTAR_IMAGEN 250, 140, 42, 42, SpriteCalabaza, 16, 16
 
-    ESCRIBIR_TEXTO 23, 7, 'F2:PRUEBA F3:RECORDS'
+    ESCRIBIR_TEXTO 23, 3, 'F2:PRUEBA F3:RECORDS F4:INVERSO'
     CALL DibujarSelector
 
     POP AX
