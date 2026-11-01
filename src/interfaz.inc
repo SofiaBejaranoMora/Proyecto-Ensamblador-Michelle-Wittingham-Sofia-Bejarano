@@ -241,8 +241,9 @@ EstadoContadores:
     CALL EscribirNumero
     CMP ClaveManual, 0
     JE EstadoFin
-    ESCRIBIR_TEXTO 21, 26, 'PRUEBA MANUAL'
+    ESCRIBIR_TEXTO 22, 26, 'PRUEBA MANUAL'
 EstadoFin:
+    CALL MostrarTiempoJuego
     POP DX
     POP AX
     RET
@@ -390,8 +391,10 @@ FinOtraFicha:
     MOV DH, 12
     MOV DL, 27
     CALL EscribirNumero
+    CALL MostrarTiempoFinal
+    CALL MostrarAvisoRecord
     ESCRIBIR_TEXTO 20, 8, 'ENTER: JUGAR OTRA VEZ'
-    ESCRIBIR_TEXTO 22, 10, 'M / ESC: MENU'
+    ESCRIBIR_TEXTO 22, 10, 'M/ESC: MENU F3:RECORDS'
     CALL DibujarCuadroFinal
     POP SI
     POP DX

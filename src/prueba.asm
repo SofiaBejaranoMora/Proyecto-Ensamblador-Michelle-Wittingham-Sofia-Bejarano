@@ -45,7 +45,28 @@ TickAnimacion DW 0
 CuadroAnimacion DB 0
 ; Cero conserva transparencia; otro indice rellena el fondo al animar.
 FondoSprite DB 0
+; Fuente BIOS para texto que comparte el fondo de las tarjetas.
+FondoTexto DB 0
+ColorTexto DB 3
+FuenteTexto DB 2048 DUP(0)
 PruebasFallidas DB 0
+ModoPruebas DB 0
+; Reloj BIOS de 32 bits y tiempo visible (hasta 99:59).
+TickReloj DW 0,0
+TicksPartida DW 0,0
+SegundosJuego DW 0
+SegundosMostrados DW 0FFFFH
+RelojActivo DB 0
+; Tres records por nivel: intento (byte) y segundos (palabra).
+NombreRecords DB 'RECORDS.DAT',0
+NombreRecordsPrueba DB 'PRUEBREC.TMP',0
+NombreRecordsBloqueado DB 'Z:\RECORDS.DAT',0
+RutaRecords DW OFFSET NombreRecords
+FirmaRecords DB 'CE01'
+Records DB 9 DUP(255,255,255)
+BufferRecords DB 32 DUP(0)
+NuevoRecord DB 0
+EstadoArchivo DB 0
 
 INCLUDE paleta.inc
 INCLUDE figuras.inc
@@ -80,6 +101,8 @@ INCLUDE juego.inc
 INCLUDE interfaz.inc
 INCLUDE animar.inc
 INCLUDE pruebas.inc
+INCLUDE tiempo.inc
+INCLUDE records.inc
 
 MAIN PROC
     MOV AX, @DATA
@@ -92,11 +115,13 @@ MAIN PROC
     MOV AX, 0013H
     INT 10H
     CALL CargarPaleta
+    CALL CargarFuenteTexto
     MOV AX, 0A000H
     MOV ES, AX
     ; CALL LimpiarPantalla
     ; /T ejecuta pruebas automaticas del algoritmo y vuelve a DOS.
     CALL RevisarPruebas
+    CALL CargarRecords
     CALL PantallaInicio
     EsperarInicio:
         CALL AnimarPortada
@@ -125,6 +150,11 @@ MAIN PROC
         JNE RevisarTeclaMenu
         JMP Terminar
     RevisarTeclaMenu:
+        CMP AH, 3DH
+        JNE RevisarPruebaManual
+        CALL ConsultarRecords
+        JMP ActualizarMenu
+    RevisarPruebaManual:
         CMP AH, 3CH
         JNE RevisarAbajoMenu
         CALL IniciarPartida

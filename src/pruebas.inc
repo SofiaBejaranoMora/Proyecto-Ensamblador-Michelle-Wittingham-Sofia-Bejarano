@@ -31,6 +31,7 @@ PruebaSinParametro:
     POP AX
     RET
 PruebaEjecutar:
+    MOV ModoPruebas, 1
     ; Recuperar el segmento de video, no el PSP.
     MOV AX, 0A000H
     MOV ES, AX
@@ -38,6 +39,9 @@ PruebaEjecutar:
     CALL ProbarGeneracion
     CALL ProbarValidacion
     CALL ProbarAnimacion
+    CALL ProbarTiempo
+    CALL ProbarRanking
+    CALL ProbarArchivoRecords
     CALL ProbarPartidaCompleta
     CALL CapturarNiveles
     MOV AL, ModoAnterior
@@ -60,7 +64,7 @@ PruebaMensajeError:
     INT 21H
     MOV AX, 4C01H
     INT 21H
-PruebaOK DB 'OK: 4 casos, 3 niveles, validacion, historial, victoria y derrota.',13,10,'$'
+PruebaOK DB 'OK: 4 casos, 3 niveles, validacion, historial, victoria, derrota, tiempo y records.',13,10,'$'
 PruebaError DB 'ERROR en las pruebas.',13,10,'$'
 RevisarPruebas ENDP
 
@@ -348,3 +352,246 @@ PruebaAnimacionFin:
     POP AX
     RET
 ProbarAnimacion ENDP
+
+; Segundos, limite 99:59 y pasos por medianoche/desbordamiento bajo.
+; Sin parametros; incrementa PruebasFallidas. Conserva AX,CX,DX.
+ProbarTiempo PROC
+    PUSH AX
+    PUSH CX
+    PUSH DX
+    MOV TicksPartida, 182
+    MOV TicksPartida+2, 0
+    CALL TicksASegundos
+    CMP AX, 10
+    JNE PruebaTiempoFallo
+    MOV TicksPartida, 18
+    CALL TicksASegundos
+    CMP AX, 0
+    JNE PruebaTiempoFallo
+    MOV TicksPartida+2, 2
+    CALL TicksASegundos
+    CMP AX, 5999
+    JNE PruebaTiempoFallo
+    MOV TicksPartida, 0
+    MOV TicksPartida+2, 0
+    MOV TickReloj, 00A0H
+    MOV TickReloj+2, 0018H
+    XOR CX, CX
+    MOV DX, 5
+    CALL AcumularTicks
+    CMP TicksPartida, 21
+    JNE PruebaTiempoFallo
+    CMP TicksPartida+2, 0
+    JNE PruebaTiempoFallo
+    MOV TicksPartida, 0
+    MOV TicksPartida+2, 0
+    MOV TickReloj, 0FFF0H
+    MOV TickReloj+2, 0
+    MOV CX, 1
+    MOV DX, 4
+    CALL AcumularTicks
+    CMP TicksPartida, 20
+    JNE PruebaTiempoFallo
+    CMP TicksPartida+2, 0
+    JNE PruebaTiempoFallo
+    ; Probar el camino activo y que la pantalla reciba el mismo segundo.
+    CALL IniciarCronometro
+    MOV TicksPartida, 182
+    CALL ActualizarCronometro
+    MOV AX, SegundosJuego
+    CMP AX, 10
+    JB PruebaTiempoFallo
+    CMP AX, 11
+    JA PruebaTiempoFallo
+    CMP AX, SegundosMostrados
+    JNE PruebaTiempoFallo
+    MOV RelojActivo, 0
+    MOV SegundosJuego, 123
+    CALL ActualizarCronometro
+    CMP SegundosJuego, 123
+    JE PruebaTiempoFin
+PruebaTiempoFallo:
+    INC PruebasFallidas
+PruebaTiempoFin:
+    POP DX
+    POP CX
+    POP AX
+    RET
+ProbarTiempo ENDP
+
+; Tres puestos por nivel, desempate por tiempo y rechazo de una marca peor.
+; Sin parametros; incrementa PruebasFallidas. Conserva AX.
+ProbarRanking PROC
+    PUSH AX
+    CALL VaciarRecords
+    MOV NivelActual, 0
+    MOV TurnoActual, 4
+    MOV SegundosJuego, 90
+    CALL InsertarRecord
+    MOV TurnoActual, 3
+    MOV SegundosJuego, 120
+    CALL InsertarRecord
+    MOV TurnoActual, 4
+    MOV SegundosJuego, 60
+    CALL InsertarRecord
+    MOV SegundosJuego, 75
+    CALL InsertarRecord
+    CMP Records[0], 3
+    JNE PruebaRankingFallo
+    CMP WORD PTR Records[1], 120
+    JNE PruebaRankingFallo
+    CMP Records[3], 4
+    JNE PruebaRankingFallo
+    CMP WORD PTR Records[4], 60
+    JNE PruebaRankingFallo
+    CMP WORD PTR Records[7], 75
+    JNE PruebaRankingFallo
+    MOV TurnoActual, 5
+    MOV SegundosJuego, 1
+    CALL InsertarRecord
+    CMP NuevoRecord, 0
+    JNE PruebaRankingFallo
+    MOV NivelActual, 1
+    MOV TurnoActual, 2
+    MOV SegundosJuego, 180
+    CALL InsertarRecord
+    CMP Records[9], 2
+    JNE PruebaRankingFallo
+    CMP Records[0], 3
+    JNE PruebaRankingFallo
+    ; RegistrarVictoria no debe insertar resultados de /T.
+    MOV PartidaTerminada, 1
+    MOV TurnoActual, 1
+    CALL RegistrarVictoria
+    CMP Records[9], 2
+    JE PruebaRankingFin
+PruebaRankingFallo:
+    INC PruebasFallidas
+PruebaRankingFin:
+    POP AX
+    RET
+ProbarRanking ENDP
+
+; Lectura/escritura DOS reales sobre PRUEBREC.TMP, nunca RECORDS.DAT.
+; Prueba tambien archivo truncado y denegacion de escritura en la unidad Z:.
+; Sin parametros; incrementa PruebasFallidas. Conserva registros.
+ProbarArchivoRecords PROC
+    PUSH AX
+    PUSH BX
+    PUSH CX
+    PUSH DX
+    MOV RutaRecords, OFFSET NombreRecordsPrueba
+    CALL GuardarRecords
+    CMP EstadoArchivo, 0
+    JNE PruebaArchivoFallo
+    CALL VaciarRecords
+    CALL CargarRecords
+    CMP EstadoArchivo, 0
+    JNE PruebaArchivoFallo
+    CMP Records[0], 3
+    JNE PruebaArchivoFallo
+    CMP WORD PTR Records[4], 60
+    JNE PruebaArchivoFallo
+    CMP Records[9], 2
+    JNE PruebaArchivoFallo
+    ; La ruta de victoria real debe guardar; manual y derrota quedan excluidas.
+    MOV ModoPruebas, 0
+    MOV NivelActual, 1
+    MOV TurnoActual, 1
+    MOV SegundosJuego, 20
+    MOV PartidaTerminada, 1
+    MOV ClaveManual, 1
+    CALL RegistrarVictoria
+    CMP Records[9], 2
+    JNE PruebaArchivoFallo
+    MOV ClaveManual, 0
+    MOV PartidaTerminada, 2
+    CALL RegistrarVictoria
+    CMP Records[9], 2
+    JNE PruebaArchivoFallo
+    MOV PartidaTerminada, 1
+    CALL RegistrarVictoria
+    MOV ModoPruebas, 1
+    CMP NuevoRecord, 1
+    JNE PruebaArchivoFallo
+    CALL CargarRecords
+    CMP Records[9], 1
+    JNE PruebaArchivoFallo
+    CMP WORD PTR Records[10], 20
+    JNE PruebaArchivoFallo
+    CALL PantallaRecords
+    CALL CapturarPuntajes
+    ; Z: es la unidad interna de DOSBox y no admite crear archivos.
+    MOV RutaRecords, OFFSET NombreRecordsBloqueado
+    CALL GuardarRecords
+    CMP EstadoArchivo, 2
+    JNE PruebaArchivoFallo
+    MOV RutaRecords, OFFSET NombreRecordsPrueba
+    ; Truncar a cinco bytes: el cargador debe rechazarlo y dejar tabla vacia.
+    MOV DX, RutaRecords
+    XOR CX, CX
+    MOV AH, 3CH
+    INT 21H
+    JC PruebaArchivoFallo
+    MOV BX, AX
+    MOV CX, 5
+    MOV DX, OFFSET BufferRecords
+    MOV AH, 40H
+    INT 21H
+    MOV AH, 3EH
+    INT 21H
+    CALL CargarRecords
+    CMP EstadoArchivo, 1
+    JNE PruebaArchivoFallo
+    CMP Records[0], 255
+    JE PruebaArchivoLimpiar
+PruebaArchivoFallo:
+    INC PruebasFallidas
+PruebaArchivoLimpiar:
+    MOV ModoPruebas, 1
+    MOV DX, OFFSET NombreRecordsPrueba
+    MOV AH, 41H
+    INT 21H
+    MOV RutaRecords, OFFSET NombreRecords
+    CALL VaciarRecords
+    MOV EstadoArchivo, 0
+    MOV NivelActual, 0
+    POP DX
+    POP CX
+    POP BX
+    POP AX
+    RET
+ProbarArchivoRecords ENDP
+
+; Captura de la tabla durante /T. Conserva registros.
+CapturarPuntajes PROC
+    PUSH AX
+    PUSH BX
+    PUSH CX
+    PUSH DX
+    PUSH DS
+    PUSH CS
+    POP DS
+    MOV DX, OFFSET NombrePuntajes
+    XOR CX, CX
+    MOV AH, 3CH
+    INT 21H
+    JC PuntajeCapturaFin
+    MOV BX, AX
+    PUSH ES
+    POP DS
+    XOR DX, DX
+    MOV CX, 64000
+    MOV AH, 40H
+    INT 21H
+    MOV AH, 3EH
+    INT 21H
+PuntajeCapturaFin:
+    POP DS
+    POP DX
+    POP CX
+    POP BX
+    POP AX
+    RET
+NombrePuntajes DB 'PUNTOS.RAW',0
+CapturarPuntajes ENDP

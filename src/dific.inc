@@ -58,6 +58,18 @@ PantallaDificultad ENDP
 ; Entrada: DS:SI=cadena terminada en cero, DH=fila, DL=columna.
 ; Salida: texto blanco. Conserva AX,BX,CX,DX,SI; requiere DF=0.
 EscribirTextoDificultad PROC
+    ; Las cadenas pueden venir de CODE o de la pila; el estilo vive en DATA.
+    PUSH AX
+    PUSH DS
+    MOV AX, SEG FondoTexto
+    MOV DS, AX
+    CMP FondoTexto, 0
+    POP DS
+    POP AX
+    JE TextoBIOSNormal
+    CALL EscribirTextoEnPanel
+    RET
+TextoBIOSNormal:
     PUSH AX
     PUSH BX
     PUSH DX

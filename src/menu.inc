@@ -102,7 +102,7 @@ PantallaMenu PROC
     PINTAR_IMAGEN 12, 140, 42, 42, SpriteGato, 16, 16
     PINTAR_IMAGEN 250, 140, 42, 42, SpriteCalabaza, 16, 16
 
-    ESCRIBIR_TEXTO 23, 8, 'F2: CLAVE DE PRUEBA'
+    ESCRIBIR_TEXTO 23, 7, 'F2:PRUEBA F3:RECORDS'
     CALL DibujarSelector
 
     POP AX

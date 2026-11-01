@@ -137,3 +137,118 @@ OmitirPixel:
     RET 14
 DibujarSprite ENDP
 
+
+; Copia la fuente ROM de 8x8 a DATA. Sin parametros; conserva registros y segmentos.
+CargarFuenteTexto PROC
+    PUSH AX
+    PUSH BX
+    PUSH CX
+    PUSH DX
+    PUSH SI
+    PUSH DI
+    PUSH BP
+    PUSH DS
+    PUSH ES
+    MOV AX, 1130H
+    MOV BH, 3
+    INT 10H
+    MOV SI, BP
+    MOV AX, ES
+    PUSH DS
+    POP ES
+    MOV DS, AX
+    MOV DI, OFFSET FuenteTexto
+    MOV CX, 2048
+    CLD
+    REP MOVSB
+    POP ES
+    POP DS
+    POP BP
+    POP DI
+    POP SI
+    POP DX
+    POP CX
+    POP BX
+    POP AX
+    RET
+CargarFuenteTexto ENDP
+
+; DS:SI=cadena, DH=fila, DL=columna. Usa ColorTexto/FondoTexto.
+; Escribe cada celda de 8x8 directamente en A000h; conserva registros.
+EscribirTextoEnPanel PROC
+    PUSH BP
+    MOV BP, SP
+    SUB SP, 2
+    MOV [BP-2], DS
+    PUSH AX
+    PUSH BX
+    PUSH CX
+    PUSH DX
+    PUSH SI
+    PUSH DI
+    PUSH DS
+    MOV AX, SEG FuenteTexto
+    MOV DS, AX
+    XOR AX, AX
+    MOV AL, DH
+    MOV CX, 2560
+    PUSH DX
+    MUL CX
+    POP DX
+    MOV DI, AX
+    XOR AX, AX
+    MOV AL, DL
+    SHL AX, 1
+    SHL AX, 1
+    SHL AX, 1
+    ADD DI, AX
+PanelTextoLetra:
+    ; Leer desde el segmento original y volver a DATA para la fuente y colores.
+    PUSH DS
+    MOV AX, [BP-2]
+    MOV DS, AX
+    LODSB
+    POP DS
+    CMP AL, 0
+    JE PanelTextoFin
+    XOR AH, AH
+    SHL AX, 1
+    SHL AX, 1
+    SHL AX, 1
+    MOV BX, AX
+    ADD BX, OFFSET FuenteTexto
+    PUSH DI
+    MOV CH, 8
+PanelTextoFila:
+    MOV DL, [BX]
+    MOV CL, 8
+PanelTextoPixel:
+    MOV AL, FondoTexto
+    TEST DL, 80H
+    JZ PanelTextoFondo
+    MOV AL, ColorTexto
+PanelTextoFondo:
+    MOV ES:[DI], AL
+    INC DI
+    SHL DL, 1
+    DEC CL
+    JNZ PanelTextoPixel
+    ADD DI, 312
+    INC BX
+    DEC CH
+    JNZ PanelTextoFila
+    POP DI
+    ADD DI, 8
+    JMP PanelTextoLetra
+PanelTextoFin:
+    POP DS
+    POP DI
+    POP SI
+    POP DX
+    POP CX
+    POP BX
+    POP AX
+    MOV SP, BP
+    POP BP
+    RET
+EscribirTextoEnPanel ENDP

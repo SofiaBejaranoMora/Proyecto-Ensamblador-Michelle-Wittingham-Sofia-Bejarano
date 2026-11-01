@@ -14,6 +14,10 @@ IniciarPartida PROC
     MOV PosicionActual, 0
     MOV FichaSeleccionada, 1
     MOV ClaveManual, 0
+    MOV RelojActivo, 0
+    MOV SegundosJuego, 0
+    MOV SegundosMostrados, 0FFFFH
+    MOV NuevoRecord, 0
 
     ; Limpiar el intento anterior.
     XOR SI, SI
@@ -288,6 +292,9 @@ ConfirmarQuedanIntentos:
     JB ConfirmarOtraFila
     MOV PartidaTerminada, 2
 ConfirmarTermino:
+    CALL ActualizarCronometro
+    MOV RelojActivo, 0
+    CALL RegistrarVictoria
     CALL PantallaFin
     JMP ConfirmarFin
 ConfirmarOtraFila:
@@ -435,7 +442,9 @@ EditarIntento ENDP
 ; Entrada: partida inicializada. Salida: ESC/M vuelve al menu. Conserva AX.
 ControlarJuego PROC
     PUSH AX
+    CALL IniciarCronometro
 JuegoEsperar:
+    CALL ActualizarCronometro
     CALL ActualizarSonido
     CMP PartidaTerminada, 0
     JNE JuegoAnimarFin
@@ -455,6 +464,12 @@ JuegoLeer:
     JE JuegoSalir
     CMP PartidaTerminada, 0
     JE JuegoEditar
+    CMP AH, 3DH
+    JNE JuegoRevisarMenuFin
+    CALL ConsultarRecords
+    CALL PantallaFin
+    JMP JuegoEsperar
+JuegoRevisarMenuFin:
     CMP AL, 'm'
     JE JuegoSalir
     CMP AL, 'M'
@@ -463,11 +478,13 @@ JuegoLeer:
     JNE JuegoEsperar
     CALL IniciarPartida
     CALL PantallaJuego
+    CALL IniciarCronometro
     JMP JuegoEsperar
 JuegoEditar:
     CALL EditarIntento
     JMP JuegoEsperar
 JuegoSalir:
+    MOV RelojActivo, 0
     CALL ApagarSonido
     POP AX
     RET
