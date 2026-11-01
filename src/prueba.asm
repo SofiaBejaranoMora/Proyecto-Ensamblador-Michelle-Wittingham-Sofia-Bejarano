@@ -107,8 +107,10 @@ MAIN PROC
     RevisarTeclaMenu:
 
         CMP AH, 50H
-        JE MenuAbajo
+        JNE RevisarArriba
+        JMP MenuAbajo
 
+    RevisarArriba:
         CMP AH, 48H
         JE MenuArriba
 
@@ -135,7 +137,9 @@ MAIN PROC
     AbrirJuego:
         CALL IniciarPartida
         CALL PantallaJuego
-        JMP VistaAbierta
+        CALL SonidoSeleccion
+        CALL ControlarJuego
+        JMP ActualizarMenu
 
     AbrirDificultad:
         CALL SeleccionarDificultad
