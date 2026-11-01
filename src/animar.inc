@@ -32,10 +32,10 @@ AnimarPortada PROC
     JNC PortadaAnimacionFin
     CMP CuadroAnimacion, 0
     JNE PortadaSegundoCuadro
-    PINTAR_ANIMACION 74, 70, 65, 70, SpriteFantasma, 16, 16, 1
+    PINTAR_ANIMACION 74, 70, 65, 70, SpriteFantasma, 16, 16, 21
     JMP PortadaAnimacionFin
 PortadaSegundoCuadro:
-    PINTAR_ANIMACION 74, 70, 65, 70, SpriteFantasma2, 16, 16, 1
+    PINTAR_ANIMACION 74, 70, 65, 70, SpriteFantasma2, 16, 16, 21
 PortadaAnimacionFin:
     POP AX
     RET

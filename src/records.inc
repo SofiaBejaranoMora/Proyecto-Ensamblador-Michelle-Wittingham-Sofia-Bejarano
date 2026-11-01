@@ -278,6 +278,7 @@ PantallaRecords PROC
     PUSH CX
     PUSH DX
     PUSH SI
+    CALL IniciarTransicion
     CALL LimpiarPantalla
     PINTAR_RECT 0, 0, 320, 200, 21
     MOV FondoTexto, 21
@@ -330,6 +331,7 @@ RecordAvisoArchivo:
 RecordPantallaFin:
     MOV FondoTexto, 0
     MOV ColorTexto, 3
+    CALL TerminarTransicion
     POP SI
     POP DX
     POP CX

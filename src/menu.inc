@@ -1,109 +1,123 @@
-; Pantalla del menu principal.
-; Requiere macros.inc, figuras.inc y video.inc.
+; Dibuja solo una tarjeta. Entrada: OpcionMenu y FondoTexto; conserva registros.
+PintarOpcionMenu PROC
+    PUSH AX
+    PUSH BX
+    PUSH CX
+    PUSH DX
+    MOV AL, OpcionMenu
+    MOV BL, 24
+    MUL BL
+    ADD AX, 56
+    MOV BX, AX
+    XOR DX, DX
+    MOV DL, FondoTexto
+    PINTAR_RECT 64, BX, 192, 22, DX
+    CMP FondoTexto, 25
+    JNE MenuSinAcento
+    PINTAR_RECT 64, BX, 2, 22, 7
+MenuSinAcento:
+    ADD BX, 8
+    MOV AX, BX
+    MOV CL, 3
+    SHR AX, CL
+    MOV DH, AL
+    MOV ColorTexto, 3
+    CMP OpcionMenu, 0
+    JNE MenuTextoDificultad
+    ESCRIBIR_TEXTO DH, 11, 'Jugar'
+    JMP MenuTextoFin
+MenuTextoDificultad:
+    CMP OpcionMenu, 1
+    JNE MenuTextoAyuda
+    ESCRIBIR_TEXTO DH, 11, 'Dificultad'
+    JMP MenuTextoFin
+MenuTextoAyuda:
+    CMP OpcionMenu, 2
+    JNE MenuTextoCreditos
+    ESCRIBIR_TEXTO DH, 11, 'Como se juega'
+    JMP MenuTextoFin
+MenuTextoCreditos:
+    CMP OpcionMenu, 3
+    JNE MenuTextoSalir
+    ESCRIBIR_TEXTO DH, 11, 'Creditos'
+    JMP MenuTextoFin
+MenuTextoSalir:
+    ESCRIBIR_TEXTO DH, 11, 'Salir'
+MenuTextoFin:
+    CALL CerrarEstilo
+    POP DX
+    POP CX
+    POP BX
+    POP AX
+    RET
+PintarOpcionMenu ENDP
 
-; Entrada: OpcionMenu. Salida: borde y flecha dibujados; conserva AX,BX.
+; Entrada: OpcionMenu. Resalta solo la tarjeta elegida; conserva AX,BX.
 DibujarSelector PROC
     PUSH AX
     PUSH BX
-
+    MOV FondoTexto, 25
+    CALL PintarOpcionMenu
     MOV AL, OpcionMenu
-    MOV BL, 25
+    MOV BL, 24
     MUL BL
-    ADD AX, 59
+    ADD AX, 63
     MOV BX, AX
-
-    ; Borde superior.
-    PINTAR_RECT 87, BX, 146, 1, 4
-
-    ; Borde inferior.
-    ADD BX, 22
-    PINTAR_RECT 87, BX, 146, 1, 4
-    SUB BX, 22
-
-    ; Bordes laterales.
-    PINTAR_RECT 87, BX, 1, 23, 4
-    PINTAR_RECT 232, BX, 1, 23, 4
-
-    ; Flecha de seleccion.
-    ADD BX, 4
-    PINTAR_IMAGEN 63, BX, 16, 16, SpriteFlecha, 8, 8
-
+    PINTAR_IMAGEN 44, BX, 8, 8, SpriteFlecha, 8, 8
     POP BX
     POP AX
     RET
 DibujarSelector ENDP
 
-; Borra el selector de su posicion actual.
-; Entrada: OpcionMenu anterior. Salida: selector borrado; conserva AX,BX.
+; Entrada: OpcionMenu anterior. Borra solo su resaltado; conserva AX,BX.
 BorrarSelector PROC
     PUSH AX
     PUSH BX
-
-    ; Calcular posicion Y actual.
+    MOV FondoTexto, 22
+    CALL PintarOpcionMenu
     MOV AL, OpcionMenu
-    MOV BL, 25
+    MOV BL, 24
     MUL BL
-    ADD AX, 59
+    ADD AX, 63
     MOV BX, AX
-
-    ; Borrar borde superior.
-    PINTAR_RECT 87, BX, 146, 1, 1
-
-    ; Borrar borde inferior.
-    ADD BX, 22
-    PINTAR_RECT 87, BX, 146, 1, 1
-    SUB BX, 22
-
-    ; Borrar bordes laterales.
-    PINTAR_RECT 87, BX, 1, 23, 1
-    PINTAR_RECT 232, BX, 1, 23, 1
-
-    ; Borrar imagen de la flecha.
-    ADD BX, 4
-    PINTAR_RECT 63, BX, 16, 16, 1
-
+    PINTAR_RECT 44, BX, 8, 8, 21
     POP BX
     POP AX
     RET
 BorrarSelector ENDP
 
-; Entrada: ES=A000h, DS=DATA. Salida: menu completo; conserva AX.
+; Menu completo. Guarda la opcion activa mientras prepara las cinco tarjetas.
 PantallaMenu PROC
     PUSH AX
-
-    ; Limpiar los margenes que el fondo del menu no cubre.
-    ; El juego escribe mensajes hasta la ultima fila de pantalla.
-    PINTAR_RECT 0, 196, 320, 4, 8
-    PINTAR_RECT 0, 0, 320, 4, 8
-    PINTAR_RECT 0, 4, 4, 192, 8
-    PINTAR_RECT 313, 4, 7, 192, 8
-
-    PINTAR_RECT 4, 4, 309, 192, 1
-
-    PINTAR_RECT 4, 4, 309, 1, 4
-    PINTAR_RECT 4, 195, 309, 1, 4
-    PINTAR_RECT 4, 4, 1, 192, 4
-    PINTAR_RECT 312, 4, 1, 192, 4
-
-    PINTAR_IMAGEN 54, 13, 85, 26, TextoClave, TextoClaveAncho, TextoClaveAlto
-    PINTAR_IMAGEN 150, 13, 115, 26, TextoEspectral, TextoEspectralAncho, TextoEspectralAlto
-
-    PINTAR_RECT 24, 48, 268, 1, 5
-
-    ; Obciones del menu
-    PINTAR_IMAGEN 98, 63, 62, 16, TextoJugar, 59, 15
-    PINTAR_IMAGEN 94, 88, 105, 14, TextoDificultad, TextoDificultadAncho, TextoDificultadAlto
-    PINTAR_IMAGEN 94, 113, 136, 14, TextoInstrucciones, TextoInstruccionesAncho, TextoInstruccionesAlto
-    PINTAR_IMAGEN 94, 138, 90, 14, TextoCreditos, TextoCreditosAncho, TextoCreditosAlto
-    PINTAR_IMAGEN 94, 163, 55, 14, TextoSalir, 51, 12
-
-    PINTAR_IMAGEN 12, 140, 42, 42, SpriteGato, 16, 16
-    PINTAR_IMAGEN 250, 140, 42, 42, SpriteCalabaza, 16, 16
-
-    ESCRIBIR_TEXTO 23, 3, 'F2:PRUEBA F3:RECORDS F4:INVERSO'
-    CALL DibujarSelector
-
+    PUSH CX
+    CALL AbrirLienzo
+    PINTAR_IMAGEN 24, 8, 48, 16, TextoClave, TextoClaveAncho, TextoClaveAlto
+    PINTAR_IMAGEN 78, 8, 82, 16, TextoEspectral, TextoEspectralAncho, TextoEspectralAlto
+    MOV ColorTexto, 26
+    ESCRIBIR_TEXTO 4, 3, 'Que hacemos esta noche?'
+    PINTAR_RECT 24, 47, 272, 1, 24
+    XOR AX, AX
+    MOV AL, OpcionMenu
+    PUSH AX
+    MOV OpcionMenu, 0
+    MOV CX, 5
+MenuPintarTarjetas:
+    MOV FondoTexto, 22
+    CALL PintarOpcionMenu
+    INC OpcionMenu
+    LOOP MenuPintarTarjetas
     POP AX
-
+    MOV OpcionMenu, AL
+    PINTAR_IMAGEN 16, 142, 28, 28, SpriteGato, 16, 16
+    PINTAR_IMAGEN 276, 142, 28, 28, SpriteCalabaza, 16, 16
+    MOV FondoTexto, 21
+    MOV ColorTexto, 26
+    ESCRIBIR_TEXTO 23, 3, 'F2 Prueba  F3 Records  F4 Inverso'
+    ESCRIBIR_TEXTO 24, 3, 'Flechas/ENTER elegir  ESC salir'
+    CALL DibujarSelector
+    CALL CerrarEstilo
+    CALL TerminarTransicion
+    POP CX
+    POP AX
     RET
 PantallaMenu ENDP

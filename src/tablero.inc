@@ -9,6 +9,7 @@ PantallaJuego PROC
     PUSH CX
     PUSH DX
     PUSH SI
+    CALL IniciarTransicion
     CALL LimpiarPantalla
     ; Zonas del enunciado: encabezado, tablero, lateral y barra inferior.
     PINTAR_RECT 0, 0, 320, 20, 21
@@ -44,6 +45,7 @@ TabCasilla:
     CALL MostrarEstado
     CALL AyudaJuego
     CALL DibujarCursorJuego
+    CALL TerminarTransicion
     POP SI
     POP DX
     POP CX

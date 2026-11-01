@@ -5,50 +5,31 @@
 ; Entrada: OpcionDificultad. Salida: pantalla y selector; conserva registros.
 PantallaDificultad PROC
     PUSH AX
-    PUSH BX
     PUSH CX
-    PUSH DX
-    PUSH SI
-
-    CALL LimpiarPantalla
-
-    ; Fondo y bordes.
-    PINTAR_RECT 4, 4, 309, 192, 1
-
-    PINTAR_RECT 4, 4, 309, 1, 4
-    PINTAR_RECT 4, 195, 309, 1, 4
-    PINTAR_RECT 4, 4, 1, 192, 4
-    PINTAR_RECT 312, 4, 1, 192, 4
-
-    ; Titulo.
-    PINTAR_IMAGEN 81, 18, 158, 18, TextoDificultad, TextoDificultadAncho, TextoDificultadAlto
-
-    PINTAR_RECT 24, 48, 268, 1, 5
-
-    ; Cuadros de las opciones.
-    PINTAR_RECT 88, 62, 144, 24, 2
-    PINTAR_RECT 88, 94, 144, 24, 2
-    PINTAR_RECT 88, 126, 144, 24, 2
-
-    ; Texto FACIL.
-    ESCRIBIR_TEXTO 9, 17, 'FACIL'
-
-    ; Texto NORMAL.
-    ESCRIBIR_TEXTO 13, 17, 'NORMAL'
-
-    ; Texto DIFICIL.
-    ESCRIBIR_TEXTO 17, 17, 'DIFICIL'
-
-    ; Indicacion inferior.
-    ESCRIBIR_TEXTO 22, 9, 'ESC: VOLVER AL MENU'
-
-    ; Dibujar la opcion seleccionada.
+    CALL AbrirLienzo
+    ESCRIBIR_TEXTO 1, 3, 'A TU RITMO'
+    MOV ColorTexto, 26
+    ESCRIBIR_TEXTO 3, 3, 'Elige que tan traviesa sera la clave.'
+    XOR AX, AX
+    MOV AL, OpcionDificultad
+    PUSH AX
+    MOV OpcionDificultad, 0
+    MOV CX, 3
+DificultadPintarTarjetas:
+    MOV FondoTexto, 22
+    CALL PintarTarjetaDificultad
+    INC OpcionDificultad
+    LOOP DificultadPintarTarjetas
+    POP AX
+    MOV OpcionDificultad, AL
+    MOV FondoTexto, 21
+    MOV ColorTexto, 26
+    ESCRIBIR_TEXTO 22, 3, 'Flechas elegir - ENTER guardar'
+    ESCRIBIR_TEXTO 24, 3, 'ESC vuelve sin cambiar tu nivel'
     CALL DibujarSelectorDificultad
-
-    POP SI
-    POP DX
+    CALL CerrarEstilo
+    CALL TerminarTransicion
     POP CX
-    POP BX
     POP AX
     RET
 PantallaDificultad ENDP
@@ -112,39 +93,91 @@ EscribirTextoDificultad ENDP
 DibujarSelectorDificultad PROC
     PUSH AX
     PUSH BX
-
+    MOV FondoTexto, 25
+    CALL PintarTarjetaDificultad
     MOV AL, OpcionDificultad
-    MOV BL, 32
+    MOV BL, 40
     MUL BL
-    ADD AX, 70
+    ADD AX, 60
     MOV BX, AX
-
-    PINTAR_IMAGEN 73, BX, 8, 8, SpriteFlecha, 8, 8
-
+    PINTAR_IMAGEN 8, BX, 8, 8, SpriteFlecha, 8, 8
     POP BX
     POP AX
     RET
 DibujarSelectorDificultad ENDP
 
-
-; Borrar la flecha anterior.
-; Entrada: OpcionDificultad anterior. Salida: flecha borrada; conserva AX,BX.
+; Quita el resaltado sin redibujar el resto. Conserva AX,BX.
 BorrarSelectorDificultad PROC
     PUSH AX
     PUSH BX
-
+    MOV FondoTexto, 22
+    CALL PintarTarjetaDificultad
     MOV AL, OpcionDificultad
-    MOV BL, 32
+    MOV BL, 40
     MUL BL
-    ADD AX, 70
+    ADD AX, 60
     MOV BX, AX
-
-    PINTAR_RECT 73, BX, 8, 8, 1
-
+    PINTAR_RECT 8, BX, 8, 8, 21
     POP BX
     POP AX
     RET
 BorrarSelectorDificultad ENDP
+
+; Entrada: opcion y fondo de la tarjeta. Conserva registros.
+PintarTarjetaDificultad PROC
+    PUSH AX
+    PUSH BX
+    PUSH CX
+    PUSH DX
+    MOV AL, OpcionDificultad
+    MOV BL, 40
+    MUL BL
+    ADD AX, 48
+    MOV BX, AX
+    XOR DX, DX
+    MOV DL, FondoTexto
+    PINTAR_RECT 24, BX, 272, 36, DX
+    CMP FondoTexto, 25
+    JNE DificultadSinAcento
+    PINTAR_RECT 24, BX, 2, 36, 7
+DificultadSinAcento:
+    ADD BX, 8
+    MOV AX, BX
+    MOV CL, 3
+    SHR AX, CL
+    MOV DH, AL
+    MOV ColorTexto, 3
+    CMP OpcionDificultad, 0
+    JNE DificultadTarjetaNormal
+    ESCRIBIR_TEXTO DH, 5, 'Facil - sin repetir'
+    MOV ColorTexto, 26
+    ADD DH, 2
+    ESCRIBIR_TEXTO DH, 5, '4 lugares / 6 fichas / 12 turnos'
+    PINTAR_IMAGEN 272, 52, 16, 16, SpriteGato, 16, 16
+    JMP DificultadTarjetaFin
+DificultadTarjetaNormal:
+    CMP OpcionDificultad, 1
+    JNE DificultadTarjetaDificil
+    ESCRIBIR_TEXTO DH, 5, 'Normal - con repeticiones'
+    MOV ColorTexto, 26
+    ADD DH, 2
+    ESCRIBIR_TEXTO DH, 5, '4 lugares / 6 fichas / 10 turnos'
+    PINTAR_IMAGEN 272, 92, 16, 16, SpriteCalabaza, 16, 16
+    JMP DificultadTarjetaFin
+DificultadTarjetaDificil:
+    ESCRIBIR_TEXTO DH, 5, 'Dificil - con repeticiones'
+    MOV ColorTexto, 26
+    ADD DH, 2
+    ESCRIBIR_TEXTO DH, 5, '5 lugares / 8 fichas / 10 turnos'
+    PINTAR_IMAGEN 272, 132, 16, 16, SpriteFantasma, 16, 16
+DificultadTarjetaFin:
+    CALL CerrarEstilo
+    POP DX
+    POP CX
+    POP BX
+    POP AX
+    RET
+PintarTarjetaDificultad ENDP
 
 
 ; Control de seleccion de dificultad.

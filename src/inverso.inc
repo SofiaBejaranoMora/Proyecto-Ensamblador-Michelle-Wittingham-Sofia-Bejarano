@@ -333,27 +333,9 @@ IniciarModoInverso PROC
     PUSH SI
 
     CALL IniciarPartida
-    CALL LimpiarPantalla
-    ESCRIBIR_TEXTO 3, 10, 'MODO INVERSO'
-    ESCRIBIR_TEXTO 8, 2, 'ENTER: ACEPTAR  BS: BORRAR'
-    ESCRIBIR_TEXTO 12, 3, 'TU CLAVE:'
-    ESCRIBIR_TEXTO 20, 3, 'ESC: CANCELAR'
-
-    CMP CantidadFichas, 8
-    JNE InversoSeisFichas
-    ESCRIBIR_TEXTO 6, 3, 'ELIGE FICHAS DEL 1 AL 8'
-    JMP InversoMostrarRegla
-InversoSeisFichas:
-    ESCRIBIR_TEXTO 6, 3, 'ELIGE FICHAS DEL 1 AL 6'
-InversoMostrarRegla:
-    CMP PermitirRepetidos, 0
-    JNE InversoReglaRepeticiones
-    ESCRIBIR_TEXTO 10, 3, 'SIN FICHAS REPETIDAS'
-    JMP InversoIniciarEntrada
-InversoReglaRepeticiones:
-    ESCRIBIR_TEXTO 10, 3, 'SE PERMITEN REPETICIONES'
-InversoIniciarEntrada:
+    CALL DibujarEditorClave
     XOR SI, SI
+    CALL MostrarClaveManual
 InversoEsperarTecla:
     MOV AH, 00H
     INT 16H
@@ -401,8 +383,10 @@ InversoConfirmar:
     MOV BL, CantidadPosiciones
     CMP SI, BX
     JNE InversoEsperarTecla
+    CALL CerrarEstilo
     CALL InversoJugarComputadora
 InversoSalir:
+    CALL CerrarEstilo
     POP SI
     POP BX
     POP AX

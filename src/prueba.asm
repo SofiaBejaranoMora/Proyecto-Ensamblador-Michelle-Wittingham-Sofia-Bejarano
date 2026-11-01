@@ -50,6 +50,9 @@ TickAnimacion DW 0
 CuadroAnimacion DB 0
 ; Cero conserva transparencia; otro indice rellena el fondo al animar.
 FondoSprite DB 0
+; Brillo de 0 (negro) a 16 (paleta original).
+BrilloActual DB 16
+PaletaPaso DB 81 DUP(0)
 ; Fuente BIOS para texto que comparte el fondo de las tarjetas.
 FondoTexto DB 0
 ColorTexto DB 3
@@ -95,6 +98,8 @@ INCLUDE menuDato.inc
 
 .CODE
 INCLUDE video.inc
+INCLUDE fundido.inc
+INCLUDE estilo.inc
 INCLUDE pantalla.inc
 INCLUDE menu.inc
 INCLUDE dific.inc
@@ -164,6 +169,8 @@ MAIN PROC
     RevisarRecordsMenu:
         CMP AH, 3DH
         JNE RevisarPruebaManual
+        CALL ConsultarRecords
+        JMP ActualizarMenu
     RevisarPruebaManual:
         CMP AH, 3CH
         JNE RevisarAbajoMenu
@@ -253,6 +260,7 @@ MAIN PROC
         CALL PantallaMenu
         JMP EsperarMenu
     Terminar:
+        CALL IniciarTransicion
         CALL ApagarSonido
         MOV AL, ModoAnterior
         MOV AH, 00H

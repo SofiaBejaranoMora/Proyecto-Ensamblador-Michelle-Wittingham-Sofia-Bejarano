@@ -357,17 +357,31 @@ PantallaFin PROC
     PUSH CX
     PUSH DX
     PUSH SI
-    CALL LimpiarPantalla
-    PINTAR_RECT 4, 4, 312, 184, 21
+    CALL AbrirLienzo
     CMP PartidaTerminada, 1
     JNE FinDerrota
-    ESCRIBIR_TEXTO 3, 12, 'CLAVE DESCUBIERTA!'
+    MOV ColorTexto, 7
+    ESCRIBIR_TEXTO 1, 3, 'LA MAGIA ERA TUYA!'
+    MOV ColorTexto, 26
+    ESCRIBIR_TEXTO 3, 3, 'Descubriste la clave. Bien jugado.'
     JMP FinMostrarClave
 FinDerrota:
-    ESCRIBIR_TEXTO 3, 13, 'SIN INTENTOS'
+    MOV ColorTexto, 18
+    ESCRIBIR_TEXTO 1, 3, 'OTRA RONDA, OTRO MISTERIO'
+    MOV ColorTexto, 26
+    ESCRIBIR_TEXTO 3, 3, 'La proxima clave puede ser la tuya.'
 FinMostrarClave:
-    ESCRIBIR_TEXTO 6, 12, 'LA CLAVE ERA:'
-    MOV BX, 92
+    PINTAR_RECT 16, 44, 288, 48, 22
+    MOV FondoTexto, 22
+    ESCRIBIR_TEXTO 6, 12, 'La clave secreta'
+    ; Centrar tanto las claves de cuatro como las de cinco posiciones.
+    MOV AL, CantidadPosiciones
+    MOV BL, 28
+    MUL BL
+    SUB AX, 4
+    MOV BX, 320
+    SUB BX, AX
+    SHR BX, 1
     MOV DX, 64
     XOR SI, SI
 FinOtraFicha:
@@ -386,16 +400,35 @@ FinOtraFicha:
     MOV AL, CantidadPosiciones
     CMP SI, AX
     JB FinOtraFicha
-    ESCRIBIR_TEXTO 12, 10, 'INTENTOS USADOS:'
+    PINTAR_RECT 24, 96, 272, 16, 22
+    ESCRIBIR_TEXTO 12, 4, 'Intentos'
+    MOV ColorTexto, 3
     MOV AL, TurnoActual
     MOV DH, 12
-    MOV DL, 27
+    MOV DL, 14
     CALL EscribirNumero
-    CALL MostrarTiempoFinal
+    MOV ColorTexto, 26
+    ESCRIBIR_TEXTO 12, 21, 'Tiempo'
+    MOV ColorTexto, 3
+    MOV AX, SegundosJuego
+    MOV DH, 12
+    MOV DL, 29
+    CALL EscribirTiempo
+    MOV FondoTexto, 21
+    MOV ColorTexto, 7
     CALL MostrarAvisoRecord
-    ESCRIBIR_TEXTO 20, 8, 'ENTER: JUGAR OTRA VEZ'
-    ESCRIBIR_TEXTO 22, 10, 'M/ESC: MENU F3:RECORDS'
+    PINTAR_RECT 32, 164, 256, 20, 25
+    PINTAR_RECT 32, 164, 2, 20, 7
+    MOV FondoTexto, 25
+    MOV ColorTexto, 3
+    ESCRIBIR_TEXTO 21, 6, 'ENTER  Una partida mas'
+    MOV FondoTexto, 21
+    MOV ColorTexto, 26
+    ESCRIBIR_TEXTO 24, 3, 'ESC Menu'
+    ESCRIBIR_TEXTO 24, 23, 'F3 Tus records'
     CALL DibujarCuadroFinal
+    CALL CerrarEstilo
+    CALL TerminarTransicion
     POP SI
     POP DX
     POP CX
@@ -414,12 +447,9 @@ IntroducirCodigo PROC
     MOV ClaveManual, 1
     ; Se permiten repeticiones para probar los casos de la tabla 2.
     MOV PermitirRepetidos, 1
-    CALL LimpiarPantalla
-    ESCRIBIR_TEXTO 3, 7, 'CLAVE MANUAL PARA PRUEBAS'
-    ESCRIBIR_TEXTO 6, 3, 'ESCRIBE 1-6 (1-8 EN DIFICIL)'
-    ESCRIBIR_TEXTO 8, 3, 'ENTER: ACEPTAR  BACKSPACE: BORRAR'
-    ESCRIBIR_TEXTO 10, 3, 'ESC: CANCELAR. ADMITE REPETIDOS.'
+    CALL DibujarEditorClave
     XOR SI, SI
+    CALL MostrarClaveManual
 ManualEsperar:
     CALL ActualizarSonido
     MOV AH, 01H
@@ -463,6 +493,7 @@ ManualConfirmar:
 ManualCancelar:
     STC
 ManualFin:
+    CALL CerrarEstilo
     POP SI
     POP DX
     POP BX
@@ -474,24 +505,53 @@ IntroducirCodigo ENDP
 MostrarClaveManual PROC
     PUSH AX
     PUSH BX
+    PUSH CX
     PUSH DX
-    PINTAR_RECT 80, 112, 128, 8, 8
+    PUSH DI
+    MOV FondoTexto, 25
+    MOV ColorTexto, 3
+    MOV AL, CantidadPosiciones
+    MOV BL, 32
+    MUL BL
+    MOV DI, 320
+    SUB DI, AX
+    SHR DI, 1
     XOR BX, BX
 ManualMostrarOtro:
-    CMP BX, SI
-    JAE ManualMostrarFin
-    MOV AX, BX
-    MOV DL, 3
-    MUL DL
-    ADD AL, 10
+    PINTAR_RECT DI, 108, 28, 36, 25
+    MOV AX, DI
+    ADD AX, 8
+    MOV CL, 3
+    SHR AX, CL
     MOV DL, AL
     MOV DH, 14
+    CMP BX, SI
+    JAE ManualMostrarVacio
     MOV AL, CodigoSecreto[BX]
     CALL EscribirNumero
-    INC BX
-    JMP ManualMostrarOtro
-ManualMostrarFin:
+    MOV AL, CodigoSecreto[BX]
+    PUSH BX
+    MOV BX, DI
+    ADD BX, 6
+    MOV DX, 124
+    MOV CX, 16
+    CALL DibujarPersonaje
+    POP BX
+    JMP ManualMostrarSiguiente
+ManualMostrarVacio:
+    MOV ColorTexto, 26
+    ESCRIBIR_TEXTO DH, DL, '--'
+    MOV ColorTexto, 3
+ManualMostrarSiguiente:
+    ADD DI, 32
+    INC BL
+    CMP BL, CantidadPosiciones
+    JB ManualMostrarOtro
+    MOV FondoTexto, 21
+    MOV ColorTexto, 26
+    POP DI
     POP DX
+    POP CX
     POP BX
     POP AX
     RET

@@ -39,11 +39,13 @@ PruebaEjecutar:
     CALL ProbarGeneracion
     CALL ProbarValidacion
     CALL ProbarAnimacion
+    CALL ProbarTransiciones
     CALL ProbarTiempo
     CALL ProbarRanking
     CALL ProbarArchivoRecords
     CALL ProbarPartidaCompleta
     CALL CapturarNiveles
+    CALL CapturarVistas
     MOV AL, ModoAnterior
     MOV AH, 00H
     INT 10H
@@ -64,7 +66,7 @@ PruebaMensajeError:
     INT 21H
     MOV AX, 4C01H
     INT 21H
-PruebaOK DB 'OK: 4 casos, 3 niveles, validacion, historial, victoria, derrota, tiempo y records.',13,10,'$'
+PruebaOK DB 'OK: 4 casos, 3 niveles, validacion, historial, victoria, derrota, tiempo, records y transiciones.',13,10,'$'
 PruebaError DB 'ERROR en las pruebas.',13,10,'$'
 RevisarPruebas ENDP
 
@@ -595,3 +597,168 @@ PuntajeCapturaFin:
     RET
 NombrePuntajes DB 'PUNTOS.RAW',0
 CapturarPuntajes ENDP
+
+; Cadena local y captura sin agregar variables al juego.
+CAPTURAR_VISTA MACRO nombre
+    LOCAL ruta, continuar
+    JMP NEAR PTR continuar
+ruta DB nombre,0
+continuar:
+    PUSH DS
+    PUSH DX
+    PUSH CS
+    POP DS
+    MOV DX, OFFSET ruta
+    CALL GuardarVista
+    POP DX
+    POP DS
+ENDM
+
+; DS:DX=nombre de archivo. Guarda A000h para inspeccion; conserva registros.
+GuardarVista PROC
+    PUSH AX
+    PUSH BX
+    PUSH CX
+    PUSH DX
+    PUSH DS
+    XOR CX, CX
+    MOV AH, 3CH
+    INT 21H
+    JC GuardarVistaFin
+    MOV BX, AX
+    PUSH ES
+    POP DS
+    XOR DX, DX
+    MOV CX, 64000
+    MOV AH, 40H
+    INT 21H
+    MOV AH, 3EH
+    INT 21H
+GuardarVistaFin:
+    POP DS
+    POP DX
+    POP CX
+    POP BX
+    POP AX
+    RET
+GuardarVista ENDP
+
+; Captura portada, menu, dificultad, instrucciones y creditos. Conserva AX.
+CapturarVistas PROC
+    PUSH AX
+    CALL PantallaInicio
+    CAPTURAR_VISTA 'PORTADA.RAW'
+    CALL PantallaMenu
+    CAPTURAR_VISTA 'MENU.RAW'
+    ; Simular un cambio de opcion y comprobar que no se altera el estado de juego.
+    CALL BorrarSelector
+    MOV OpcionMenu, 2
+    CALL DibujarSelector
+    CAPTURAR_VISTA 'MENU2.RAW'
+    MOV OpcionMenu, 0
+    CALL PantallaDificultad
+    CAPTURAR_VISTA 'NIVEL.RAW'
+    CALL BorrarSelectorDificultad
+    MOV OpcionDificultad, 2
+    CALL DibujarSelectorDificultad
+    CAPTURAR_VISTA 'NIVEL2.RAW'
+    MOV OpcionDificultad, 0
+    CALL PantallaInstrucciones
+    CAPTURAR_VISTA 'AYUDA.RAW'
+    CALL PantallaCreditos
+    CAPTURAR_VISTA 'CREDITOS.RAW'
+    CALL CapturarEditores
+    POP AX
+    RET
+CapturarVistas ENDP
+
+; Prueba visual de ambos editores, sin esperar entrada del teclado.
+; Conserva AX,SI; solo se usa al final de /T.
+CapturarEditores PROC
+    PUSH AX
+    PUSH SI
+    CALL IniciarPartida
+    MOV ClaveManual, 1
+    MOV PermitirRepetidos, 1
+    CALL DibujarEditorClave
+    MOV CodigoSecreto[0], 1
+    MOV CodigoSecreto[1], 2
+    MOV CodigoSecreto[2], 3
+    MOV SI, 3
+    CALL MostrarClaveManual
+    CAPTURAR_VISTA 'PRUEBA.RAW'
+    CALL CerrarEstilo
+    MOV ClaveManual, 0
+    MOV PermitirRepetidos, 0
+    CALL DibujarEditorClave
+    CALL MostrarClaveManual
+    CAPTURAR_VISTA 'INVERSO.RAW'
+    CALL CerrarEstilo
+    POP SI
+    POP AX
+    RET
+CapturarEditores ENDP
+
+; Ejecuta el efecto real y lee el DAC para verificar negro, brillo medio y original.
+; Conserva registros. Solo usa paleta/pantalla; no toca archivos de puntajes.
+ProbarTransiciones PROC
+    PUSH AX
+    PUSH CX
+    PUSH DX
+    PUSH SI
+    MOV ModoPruebas, 0
+    CALL PantallaMenu
+    CALL IniciarTransicion
+    CMP BrilloActual, 0
+    JNE PruebaFundidoFallo
+    MOV DX, 03C7H
+    XOR AL, AL
+    OUT DX, AL
+    ADD DX, 2
+    MOV CX, 81
+PruebaFundidoNegro:
+    IN AL, DX
+    CMP AL, 0
+    JNE PruebaFundidoFallo
+    LOOP PruebaFundidoNegro
+    CALL TerminarTransicion
+    CMP BrilloActual, 16
+    JNE PruebaFundidoFallo
+    MOV DX, 03C7H
+    XOR AL, AL
+    OUT DX, AL
+    ADD DX, 2
+    MOV SI, OFFSET Paleta
+    MOV CX, 81
+PruebaFundidoOriginal:
+    IN AL, DX
+    CMP AL, [SI]
+    JNE PruebaFundidoFallo
+    INC SI
+    LOOP PruebaFundidoOriginal
+    MOV BrilloActual, 8
+    CALL AplicarBrillo
+    ; Blanco original (63,63,63) debe quedar en (31,31,31).
+    MOV DX, 03C7H
+    MOV AL, 3
+    OUT DX, AL
+    ADD DX, 2
+    MOV CX, 3
+PruebaFundidoMedio:
+    IN AL, DX
+    CMP AL, 31
+    JNE PruebaFundidoFallo
+    LOOP PruebaFundidoMedio
+    JMP PruebaFundidoFin
+PruebaFundidoFallo:
+    INC PruebasFallidas
+PruebaFundidoFin:
+    MOV BrilloActual, 16
+    CALL AplicarBrillo
+    MOV ModoPruebas, 1
+    POP SI
+    POP DX
+    POP CX
+    POP AX
+    RET
+ProbarTransiciones ENDP

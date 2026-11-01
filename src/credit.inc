@@ -1,40 +1,28 @@
-; Entrada: ES=A000h, DS=DATA. Salida: creditos; conserva registros.
+; Creditos de ambas integrantes. Conserva AX.
 PantallaCreditos PROC
     PUSH AX
-    PUSH BX
-    PUSH CX
-    PUSH DX
-    PUSH SI
-
-    CALL LimpiarPantalla
-
-    PINTAR_RECT 4, 4, 309, 192, 1
-
-    PINTAR_RECT 4, 4, 309, 1, 4
-    PINTAR_RECT 4, 195, 309, 1, 4
-    PINTAR_RECT 4, 4, 1, 192, 4
-    PINTAR_RECT 312, 4, 1, 192, 4
-
-    PINTAR_IMAGEN 93, 18, 134, 18, TextoCreditos, TextoCreditosAncho, TextoCreditosAlto
-    PINTAR_RECT 24, 48, 268, 1, 5
-
-    PINTAR_RECT 30, 61, 260, 83, 2
-
-    ESCRIBIR_TEXTO 9, 12, 'DESARROLLADO POR'
-
-    ESCRIBIR_TEXTO 12, 10, 'MICHELLE WITTINGHAM'
-
-    ESCRIBIR_TEXTO 15, 12, 'SOFIA BEJARANO'
-
-    PINTAR_IMAGEN 30, 151, 24, 24, SpriteGato, 16, 16
-    PINTAR_IMAGEN 266, 151, 24, 24, SpriteCalabaza, 16, 16
-
-    ESCRIBIR_TEXTO 22, 11, 'ESC: VOLVER AL MENU'
-
-    POP SI
-    POP DX
-    POP CX
-    POP BX
+    CALL AbrirLienzo
+    ESCRIBIR_TEXTO 1, 3, 'HECHO ENTRE HECHIZOS'
+    MOV ColorTexto, 26
+    ESCRIBIR_TEXTO 3, 3, 'Dos mentes, una clave por descubrir.'
+    PINTAR_RECT 16, 56, 288, 44, 22
+    PINTAR_RECT 16, 56, 2, 44, 7
+    PINTAR_RECT 16, 112, 288, 44, 22
+    PINTAR_RECT 16, 112, 2, 44, 18
+    PINTAR_IMAGEN 32, 64, 24, 24, SpriteGato, 16, 16
+    PINTAR_IMAGEN 32, 120, 24, 24, SpriteCalabaza, 16, 16
+    MOV FondoTexto, 22
+    MOV ColorTexto, 3
+    ESCRIBIR_TEXTO 8, 10, 'MICHELLE WITTINGHAM'
+    ESCRIBIR_TEXTO 15, 10, 'SOFIA BEJARANO'
+    MOV ColorTexto, 26
+    ESCRIBIR_TEXTO 11, 10, 'Desarrollo y diseno'
+    ESCRIBIR_TEXTO 18, 10, 'Desarrollo y diseno'
+    MOV FondoTexto, 21
+    ESCRIBIR_TEXTO 21, 3, 'Gracias por jugar nuestra historia.'
+    ESCRIBIR_TEXTO 24, 3, 'ESC  Volver al menu'
+    CALL CerrarEstilo
+    CALL TerminarTransicion
     POP AX
     RET
 PantallaCreditos ENDP
