@@ -1,5 +1,7 @@
+
 ; Pantalla de dificultad.
-; Requiere macros.inc, video.inc y menuDato.inc.
+; Requiere macros.inc, video.inc, menuDato.inc y audio.inc.
+
 PantallaDificultad PROC
     PUSH AX
     PUSH BX
@@ -27,19 +29,19 @@ PantallaDificultad PROC
     PINTAR_RECT 88, 94, 144, 24, 2
     PINTAR_RECT 88, 126, 144, 24, 2
 
-    ; Texto FACIL: fila 9, columna 17.
+    ; Texto FACIL.
     MOV DH, 9
     MOV DL, 17
     MOV SI, OFFSET DifFacil
     CALL EscribirTextoDificultad
 
-    ; Texto NORMAL: fila 13, columna 17.
+    ; Texto NORMAL.
     MOV DH, 13
     MOV DL, 17
     MOV SI, OFFSET DifNormal
     CALL EscribirTextoDificultad
 
-    ; Texto DIFICIL: fila 17, columna 17.
+    ; Texto DIFICIL.
     MOV DH, 17
     MOV DL, 17
     MOV SI, OFFSET DifDificil
@@ -51,6 +53,9 @@ PantallaDificultad PROC
     MOV SI, OFFSET DifVolver
     CALL EscribirTextoDificultad
 
+    ; Dibujar la opcion seleccionada.
+    CALL DibujarSelectorDificultad
+
     POP SI
     POP DX
     POP CX
@@ -59,6 +64,8 @@ PantallaDificultad PROC
     RET
 PantallaDificultad ENDP
 
+
+; Escribir textos en pantalla.
 EscribirTextoDificultad PROC
     PUSH AX
     PUSH BX
@@ -79,6 +86,7 @@ DifSiguienteLetra:
     MOV AH, 09H
     XOR BH, BH
     MOV BL, 3
+
     PUSH CX
     MOV CX, 1
     INT 10H
@@ -94,3 +102,135 @@ DifFinTexto:
     POP AX
     RET
 EscribirTextoDificultad ENDP
+
+
+; Dibujar la flecha de seleccion.
+DibujarSelectorDificultad PROC
+    PUSH AX
+    PUSH BX
+
+    MOV AL, OpcionDificultad
+    MOV BL, 32
+    MUL BL
+    ADD AX, 70
+    MOV BX, AX
+
+    PINTAR_IMAGEN 73, BX, 8, 8, SpriteFlecha, 8, 8
+
+    POP BX
+    POP AX
+    RET
+DibujarSelectorDificultad ENDP
+
+
+; Borrar la flecha anterior.
+BorrarSelectorDificultad PROC
+    PUSH AX
+    PUSH BX
+
+    MOV AL, OpcionDificultad
+    MOV BL, 32
+    MUL BL
+    ADD AX, 70
+    MOV BX, AX
+
+    PINTAR_RECT 73, BX, 8, 8, 1
+
+    POP BX
+    POP AX
+    RET
+BorrarSelectorDificultad ENDP
+
+
+; Control de seleccion de dificultad.
+SeleccionarDificultad PROC
+    PUSH AX
+
+    ; Iniciar con la dificultad actual.
+    MOV AL, NivelActual
+    MOV OpcionDificultad, AL
+
+    CALL PantallaDificultad
+
+DifEsperar:
+    CALL ActualizarSonido
+
+    ; Comprobar si hay una tecla.
+    MOV AH, 01H
+    INT 16H
+    JZ DifEsperar
+
+    ; Leer la tecla.
+    MOV AH, 00H
+    INT 16H
+
+    ; ESC: regresar sin guardar.
+    CMP AL, 27
+    JNE DifRevisarEnter
+    JMP DifSalir
+
+DifRevisarEnter:
+    ; ENTER: confirmar dificultad.
+    CMP AL, 13
+    JNE DifRevisarArriba
+    JMP DifConfirmar
+
+DifRevisarArriba:
+    CMP AH, 48H
+    JNE DifRevisarAbajo
+    JMP DifArriba
+
+DifRevisarAbajo:
+    CMP AH, 50H
+    JNE DifEsperar
+    JMP DifAbajo
+
+
+; Mover hacia arriba.
+DifArriba:
+    CALL SonidoSeleccion
+    CALL BorrarSelectorDificultad
+
+    CMP OpcionDificultad, 0
+    JE DifUltima
+
+    DEC OpcionDificultad
+    JMP DifActualizar
+
+DifUltima:
+    MOV OpcionDificultad, 2
+    JMP DifActualizar
+
+
+; Mover hacia abajo.
+DifAbajo:
+    CALL SonidoSeleccion
+    CALL BorrarSelectorDificultad
+
+    CMP OpcionDificultad, 2
+    JE DifPrimera
+
+    INC OpcionDificultad
+    JMP DifActualizar
+
+DifPrimera:
+    MOV OpcionDificultad, 0
+
+
+; Actualizar solamente la flecha.
+DifActualizar:
+    CALL DibujarSelectorDificultad
+    JMP DifEsperar
+
+
+; Guardar la dificultad elegida.
+DifConfirmar:
+    MOV AL, OpcionDificultad
+    MOV NivelActual, AL
+
+    CALL SonidoSeleccion
+
+DifSalir:
+    POP AX
+    RET
+SeleccionarDificultad ENDP

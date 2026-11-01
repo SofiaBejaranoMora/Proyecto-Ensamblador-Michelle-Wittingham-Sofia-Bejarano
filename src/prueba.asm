@@ -8,6 +8,9 @@ ModoAnterior DB ?
 OpcionMenu DB 0
 InicioSonido DW 0
 SonidoActivo DB 0
+NivelActual DB 0
+OpcionDificultad DB 0
+
 DifFacil DB 'FACIL', 0
 DifNormal DB 'NORMAL', 0
 DifDificil DB 'DIFICIL', 0
@@ -122,8 +125,8 @@ MAIN PROC
         JMP VistaAbierta
 
     AbrirDificultad:
-        CALL PantallaDificultad
-        JMP VistaAbierta
+        CALL SeleccionarDificultad
+        JMP ActualizarMenu
 
     AbrirInstrucciones:
         CALL PantallaInstrucciones
