@@ -46,6 +46,7 @@ En el IDE tambien se puede compilar y ejecutar `src/prueba.asm`.
 - Teclas 1..C colocan directamente un personaje en la casilla activa.
 - Enter evalua; Backspace vacia la casilla; Esc vuelve al menu.
 - Resultado: Enter inicia otra partida; M o Esc vuelve al menu.
+- F3 desde el menu o el resultado: mejores puntajes.
 - F2 desde el menu: editor de clave secreta para la demostracion del algoritmo.
 
 Las pistas son numeros: verde = toros (ficha y posicion exactas), naranja = vacas
@@ -91,3 +92,26 @@ animaciones y compilacion. Las autoras deben revisar, comprender y adaptar todo
 lo entregado y completar la declaracion personal en el documento tecnico.
 La procedencia y autoria original de los sprites existentes debe ser confirmada
 por las autoras; este repositorio no prueba por si solo ese requisito.
+
+## Extras: cronometro y records
+
+El tiempo aparece en formato MM:SS. Empieza al entrar al tablero, se detiene al
+terminar y se reinicia con cada partida. Se calcula desde los ticks BIOS, no desde
+la velocidad de la CPU; admite el cruce de medianoche y llega hasta 99:59. La
+conversion usa 182 ticks por diez segundos (aproximacion con error menor a 0.04%).
+
+F3 abre tres records de cada dificultad. Solo clasifican las victorias de partidas
+aleatorias. Primero se compara el numero de intentos y luego el tiempo empleado.
+No se mezclan niveles; las claves de F2 y las pruebas automaticas no crean records
+reales. Un intento abandonado o una derrota tampoco entra en la tabla.
+
+`RECORDS.DAT` se guarda en la carpeta de trabajo de DOS. Con `dosbox.conf` es
+`bin/RECORDS.DAT`. Debes ejecutar desde la misma carpeta para conservar tu tabla;
+si el IDE usa una carpeta temporal distinta en cada ejecucion, usa el ejecutable
+entregado con la configuracion DOSBox incluida para mantener los records.
+
+El formato CE01 contiene cuatro bytes de firma y nueve entradas de tres bytes:
+intentos (byte) + segundos (palabra little-endian). Una entrada vacia usa FF FF FF.
+Un archivo inexistente inicia una tabla vacia. Uno truncado o incompatible se
+rechaza, y un fallo de escritura se informa en el resultado sin cerrar el juego.
+La prueba /T escribe y elimina solo `PRUEBREC.TMP`; nunca abre `RECORDS.DAT`.
