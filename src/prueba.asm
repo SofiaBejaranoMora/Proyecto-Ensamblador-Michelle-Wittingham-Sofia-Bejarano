@@ -37,6 +37,8 @@ PermitirRepetidos DB 0
 ; Estado de la partida.
 TurnoActual DB 0
 PosicionActual DB 0
+FichaSeleccionada DB 1
+CoordenadaFicha DW 0
 
 ; Combinaciones.
 CodigoSecreto DB 5 DUP(0)
