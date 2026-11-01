@@ -1,13 +1,13 @@
-TAB_FILAS      EQU 12
+TAB_FILAS EQU 12
 TAB_POSICIONES EQU 4
-TAB_PASO_FILA  EQU 13
+TAB_PASO_FILA EQU 13
 
-TAB_FONDO      EQU 21
-TAB_PANEL      EQU 22
-TAB_CASILLA    EQU 23
-TAB_BORDE      EQU 24
-TAB_ACTIVA     EQU 25
-TAB_DETALLE    EQU 26
+TAB_FONDO EQU 21
+TAB_PANEL EQU 22
+TAB_CASILLA EQU 23
+TAB_BORDE EQU 24
+TAB_ACTIVA EQU 25
+TAB_DETALLE EQU 26
 
 PantallaJuego PROC
     PUSH AX
@@ -44,30 +44,32 @@ PantallaJuego PROC
     PINTAR_RECT 10, 31, 200, 12, TAB_ACTIVA
 
     MOV SI, 31
-    MOV CX, TAB_FILAS
+    XOR CX, CX
+    MOV CL, IntentosMaximos
 
-TabDibujarFila:
-    PUSH CX
+    TabDibujarFila:
+        PUSH CX
 
-    PINTAR_RECT 14, SI, 3, 12, TAB_DETALLE
+        PINTAR_RECT 14, SI, 3, 12, TAB_DETALLE
 
-    MOV BX, 24
-    MOV CX, TAB_POSICIONES
+        MOV BX, 24
+        XOR CX, CX
+        MOV CL, CantidadPosiciones
 
-TabDibujarCasilla:
-    PINTAR_RECT BX, SI, 16, 12, TAB_CASILLA
+        TabDibujarCasilla:
+            PINTAR_RECT BX, SI, 16, 12, TAB_CASILLA
 
-    ADD BX, 22
-    LOOP TabDibujarCasilla
+            ADD BX, 22
+            LOOP TabDibujarCasilla
 
-    ; Casillas para las pistas.
-    PINTAR_RECT 148, SI, 20, 12, TAB_CASILLA
-    PINTAR_RECT 180, SI, 20, 12, TAB_CASILLA
+        ; Casillas para las pistas.
+        PINTAR_RECT 148, SI, 20, 12, TAB_CASILLA
+        PINTAR_RECT 180, SI, 20, 12, TAB_CASILLA
 
-    ADD SI, TAB_PASO_FILA
+        ADD SI, TAB_PASO_FILA
 
-    POP CX
-    LOOP TabDibujarFila
+        POP CX
+        LOOP TabDibujarFila
 
     ; Separador y marca de seleccion verde menta.
     PINTAR_RECT 139, 31, 1, 154, TAB_BORDE

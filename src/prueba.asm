@@ -28,6 +28,20 @@ InstPosicion DB 'IMPORTAN LA FICHA Y SU POSICION.', 0
 InstGanar DB 'DESCUBRE LA CLAVE PARA GANAR.', 0
 InstVolver DB 'ESC: VOLVER AL MENU', 0
 
+; Reglas de la partida.
+CantidadPosiciones DB 4
+CantidadFichas DB 6
+IntentosMaximos DB 12
+PermitirRepetidos DB 0
+
+; Estado de la partida.
+TurnoActual DB 0
+PosicionActual DB 0
+
+; Combinaciones.
+CodigoSecreto DB 5 DUP(0)
+IntentoActual DB 5 DUP(0)
+
 INCLUDE paleta.inc
 INCLUDE figuras.inc
 INCLUDE inicio.inc
@@ -42,6 +56,7 @@ INCLUDE audio.inc
 INCLUDE tablero.inc
 INCLUDE instruc.inc
 INCLUDE credit.inc
+INCLUDE juego.inc
 
 MAIN PROC
     MOV AX, @DATA
@@ -100,9 +115,6 @@ MAIN PROC
         CMP AL, 13
         JE ElegirOpcion
 
-        CMP AL, 13
-        JE ElegirOpcion
-
         JMP EsperarMenu
 
     ElegirOpcion:
@@ -121,6 +133,7 @@ MAIN PROC
         JMP Terminar
 
     AbrirJuego:
+        CALL IniciarPartida
         CALL PantallaJuego
         JMP VistaAbierta
 
