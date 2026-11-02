@@ -1,13 +1,8 @@
-; Cada intento ocupa cinco bytes; los niveles de cuatro dejan el ultimo en cero.
-; Las rutinas de este archivo reciben el estado en DATA y conservan registros.
-
-; Entrada: NivelActual. Salida: reglas, clave y estado inicializados; conserva AX,CX,SI.
 IniciarPartida PROC
     PUSH AX
     PUSH CX
     PUSH SI
 
-    ; Reiniciar el estado de la partida.
     MOV TurnoActual, 0
     MOV FilaJuego, 24
     MOV PartidaTerminada, 0
@@ -19,7 +14,6 @@ IniciarPartida PROC
     MOV SegundosMostrados, 0FFFFH
     MOV NuevoRecord, 0
 
-    ; Limpiar el intento anterior.
     XOR SI, SI
     MOV CX, 5
 
@@ -28,11 +22,9 @@ IniciarPartida PROC
         INC SI
         LOOP LimpiarIntentoInicial
 
-    ; Configurar dificultad.
     CMP NivelActual, 0
     JNE RevisarNormal
 
-    ; FACIL
     MOV CantidadPosiciones, 4
     MOV CantidadFichas, 6
     MOV IntentosMaximos, 12
@@ -43,7 +35,6 @@ IniciarPartida PROC
         CMP NivelActual, 1
         JNE ConfigurarDificil
 
-        ; NORMAL
         MOV CantidadPosiciones, 4
         MOV CantidadFichas, 6
         MOV IntentosMaximos, 10
@@ -51,14 +42,14 @@ IniciarPartida PROC
         JMP FinIniciarPartida
 
     ConfigurarDificil:
-        ; DIFICIL
+
         MOV CantidadPosiciones, 5
         MOV CantidadFichas, 8
         MOV IntentosMaximos, 10
         MOV PermitirRepetidos, 1
 
     FinIniciarPartida:
-        ; Limpiar historial y pistas de la partida anterior.
+
         XOR SI, SI
         MOV CX, 60
 InicialLimpiarHistorial:
@@ -72,14 +63,19 @@ InicialLimpiarPistas:
         MOV HistorialVacas[SI], 0
         INC SI
         LOOP InicialLimpiarPistas
+        CMP ModoMulti, 0
+        JNE InicialClaveCompartida
         CALL GenerarCodigo
+        JMP InicialClaveLista
+InicialClaveCompartida:
+        CALL RestaurarClaveMulti
+InicialClaveLista:
         POP SI
         POP CX
         POP AX
         RET
 IniciarPartida ENDP
 
-; Entrada: reglas y ticks BIOS. Salida: CodigoSecreto nuevo; conserva registros.
 GenerarCodigo PROC
     PUSH AX
     PUSH BX
@@ -92,13 +88,13 @@ GenerarCodigo PROC
 GenerarNuevaClave:
     XOR SI, SI
 GenerarOtraFicha:
-    ; Generador sencillo: semilla = semilla * 25173 + 13849.
+
     MOV AX, Semilla
     MOV BX, 25173
     MUL BX
     ADD AX, 13849
     MOV Semilla, AX
-    ; Usar el byte alto para evitar patrones de los bits bajos.
+
     MOV AL, AH
     XOR AH, AH
     XOR DX, DX
@@ -124,7 +120,7 @@ GuardarCodigo:
     MOV AL, CantidadPosiciones
     CMP SI, AX
     JB GenerarOtraFicha
-    ; Evitar repetir exactamente la clave de la partida anterior.
+
     CMP HayCodigoAnterior, 0
     JE GuardarClaveAnterior
     XOR SI, SI
@@ -155,8 +151,6 @@ CopiarClaveAnterior:
     RET
 GenerarCodigo ENDP
 
-; Entrada: CodigoSecreto, IntentoActual y CantidadPosiciones.
-; Salida: AciertosExactos y AciertosOtraPosicion. Conserva registros.
 EvaluarIntento PROC
     PUSH AX
     PUSH CX
@@ -172,7 +166,6 @@ LimpiarMarcasPistas:
     INC SI
     LOOP LimpiarMarcasPistas
 
-    ; Primero reservar las coincidencias de ficha y posicion.
     XOR SI, SI
     XOR CX, CX
     MOV CL, CantidadPosiciones
@@ -187,7 +180,6 @@ SiguienteExacto:
     INC SI
     LOOP BuscarExactos
 
-    ; Cada ficha restante puede contarse una sola vez.
     XOR SI, SI
 BuscarOtraPosicion:
     CMP UsadoIntento[SI], 1
@@ -222,8 +214,6 @@ SiguienteFichaPista:
     RET
 EvaluarIntento ENDP
 
-; Guardar el intento y las dos pistas antes de pasar de fila.
-; Entrada: estado de partida. Salida: historial actualizado; conserva AX,BX,CX,SI,DI.
 GuardarHistorial PROC
     PUSH DX
     PUSH AX
@@ -259,8 +249,6 @@ CopiarIntentoHistorial:
     RET
 GuardarHistorial ENDP
 
-; Confirmar solo una fila completa; un rechazo no consume turno.
-; Entrada: estado de partida. Salida: turno/resultado actualizados; conserva registros.
 ConfirmarIntento PROC
     PUSH AX
     PUSH CX
@@ -294,6 +282,9 @@ ConfirmarQuedanIntentos:
 ConfirmarTermino:
     CALL ActualizarCronometro
     MOV RelojActivo, 0
+
+    CMP ModoMulti, 0
+    JNE ConfirmarFin
     CALL RegistrarVictoria
     CALL PantallaFin
     JMP ConfirmarFin
@@ -317,7 +308,6 @@ ConfirmarFin:
     RET
 ConfirmarIntento ENDP
 
-; Colocar en la casilla actual. Conserva AX,BX,SI.
 ColocarFicha PROC
     PUSH AX
     PUSH BX
@@ -352,7 +342,6 @@ ColocarFin:
     RET
 ColocarFicha ENDP
 
-; BACKSPACE vacia solo la casilla actual. Conserva AX,SI.
 BorrarFichaActual PROC
     PUSH AX
     PUSH SI
@@ -368,7 +357,6 @@ BorrarFichaActual PROC
     RET
 BorrarFichaActual ENDP
 
-; Entrada: tecla en AX. Salida: estado de edicion; conserva registros.
 EditarIntento PROC
     PUSH AX
     CMP AL, 8
@@ -439,7 +427,6 @@ EditarFin:
     RET
 EditarIntento ENDP
 
-; Entrada: partida inicializada. Salida: ESC/M vuelve al menu. Conserva AX.
 ControlarJuego PROC
     PUSH AX
     CALL IniciarCronometro

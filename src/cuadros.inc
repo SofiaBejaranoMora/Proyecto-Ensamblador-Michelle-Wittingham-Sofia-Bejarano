@@ -1,4 +1,3 @@
-; Cuadros alternativos: balanceo del cuerpo sin cambiar la cara ni recortar bordes.
 SpriteGato2 LABEL BYTE
 DB 0,0,0,8,8,0,0,0,0,0,8,8,0,0,0,0
 DB 0,0,8,13,13,8,0,0,0,8,14,14,8,0,0,0

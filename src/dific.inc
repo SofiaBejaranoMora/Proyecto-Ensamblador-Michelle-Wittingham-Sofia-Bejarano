@@ -1,8 +1,3 @@
-
-; Pantalla de dificultad.
-; Requiere macros.inc, video.inc, menuDato.inc y audio.inc.
-
-; Entrada: OpcionDificultad. Salida: pantalla y selector; conserva registros.
 PantallaDificultad PROC
     PUSH AX
     PUSH CX
@@ -34,12 +29,8 @@ DificultadPintarTarjetas:
     RET
 PantallaDificultad ENDP
 
-
-; Escribir textos en pantalla.
-; Entrada: DS:SI=cadena terminada en cero, DH=fila, DL=columna.
-; Salida: texto blanco. Conserva AX,BX,CX,DX,SI; requiere DF=0.
 EscribirTextoDificultad PROC
-    ; Las cadenas pueden venir de CODE o de la pila; el estilo vive en DATA.
+
     PUSH AX
     PUSH DS
     MOV AX, SEG FondoTexto
@@ -87,9 +78,6 @@ DifFinTexto:
     RET
 EscribirTextoDificultad ENDP
 
-
-; Dibujar la flecha de seleccion.
-; Entrada: OpcionDificultad. Salida: flecha dibujada; conserva AX,BX.
 DibujarSelectorDificultad PROC
     PUSH AX
     PUSH BX
@@ -106,7 +94,6 @@ DibujarSelectorDificultad PROC
     RET
 DibujarSelectorDificultad ENDP
 
-; Quita el resaltado sin redibujar el resto. Conserva AX,BX.
 BorrarSelectorDificultad PROC
     PUSH AX
     PUSH BX
@@ -123,7 +110,6 @@ BorrarSelectorDificultad PROC
     RET
 BorrarSelectorDificultad ENDP
 
-; Entrada: opcion y fondo de la tarjeta. Conserva registros.
 PintarTarjetaDificultad PROC
     PUSH AX
     PUSH BX
@@ -179,13 +165,9 @@ DificultadTarjetaFin:
     RET
 PintarTarjetaDificultad ENDP
 
-
-; Control de seleccion de dificultad.
-; Entrada: NivelActual. Salida: Enter actualiza el nivel; Esc cancela; conserva AX.
 SeleccionarDificultad PROC
     PUSH AX
 
-    ; Iniciar con la dificultad actual.
     MOV AL, NivelActual
     MOV OpcionDificultad, AL
 
@@ -194,22 +176,19 @@ SeleccionarDificultad PROC
 DifEsperar:
     CALL ActualizarSonido
 
-    ; Comprobar si hay una tecla.
     MOV AH, 01H
     INT 16H
     JZ DifEsperar
 
-    ; Leer la tecla.
     MOV AH, 00H
     INT 16H
 
-    ; ESC: regresar sin guardar.
     CMP AL, 27
     JNE DifRevisarEnter
     JMP DifSalir
 
 DifRevisarEnter:
-    ; ENTER: confirmar dificultad.
+
     CMP AL, 13
     JNE DifRevisarArriba
     JMP DifConfirmar
@@ -224,8 +203,6 @@ DifRevisarAbajo:
     JNE DifEsperar
     JMP DifAbajo
 
-
-; Mover hacia arriba.
 DifArriba:
     CALL SonidoSeleccion
     CALL BorrarSelectorDificultad
@@ -240,8 +217,6 @@ DifUltima:
     MOV OpcionDificultad, 2
     JMP DifActualizar
 
-
-; Mover hacia abajo.
 DifAbajo:
     CALL SonidoSeleccion
     CALL BorrarSelectorDificultad
@@ -255,14 +230,10 @@ DifAbajo:
 DifPrimera:
     MOV OpcionDificultad, 0
 
-
-; Actualizar solamente la flecha.
 DifActualizar:
     CALL DibujarSelectorDificultad
     JMP DifEsperar
 
-
-; Guardar la dificultad elegida.
 DifConfirmar:
     MOV AL, OpcionDificultad
     MOV NivelActual, AL

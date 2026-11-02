@@ -1,5 +1,3 @@
-; Reloj sin esperas. INT 1Ah devuelve CX:DX ticks desde medianoche.
-; Entrada: partida dibujada. Salida: reloj en cero y activo. Conserva registros.
 IniciarCronometro PROC
     PUSH AX
     PUSH CX
@@ -20,7 +18,6 @@ IniciarCronometro PROC
     RET
 IniciarCronometro ENDP
 
-; Entrada: CX:DX=ticks actuales. Salida: acumulador actualizado; conserva registros.
 AcumularTicks PROC
     PUSH AX
     PUSH BX
@@ -31,7 +28,7 @@ AcumularTicks PROC
     SUB AX, TickReloj
     SBB BX, TickReloj+2
     JNC TiempoSinMedianoche
-    ; Un dia BIOS contiene 0018:00B0h ticks.
+
     ADD AX, 00B0H
     ADC BX, 0018H
 TiempoSinMedianoche:
@@ -46,8 +43,6 @@ TiempoSinMedianoche:
     RET
 AcumularTicks ENDP
 
-; Entrada: TicksPartida. Salida: AX=segundos, hasta 5999; conserva BX,DX,SI.
-; 182 ticks equivalen aproximadamente a diez segundos (error menor al 0.04%).
 TicksASegundos PROC
     PUSH BX
     PUSH DX
@@ -80,7 +75,6 @@ TiempoConversionFin:
     RET
 TicksASegundos ENDP
 
-; Sin parametros. Solo redibuja si cambio el segundo; conserva AX,CX,DX.
 ActualizarCronometro PROC
     PUSH AX
     PUSH CX
@@ -102,7 +96,6 @@ TiempoActualizarFin:
     RET
 ActualizarCronometro ENDP
 
-; AX=segundos, DH=fila, DL=columna. Dibuja MM:SS; conserva registros.
 EscribirTiempo PROC
     PUSH AX
     PUSH BX
@@ -116,7 +109,7 @@ EscribirTiempo PROC
     POP DX
     CALL EscribirNumero
     ADD DL, 2
-    ; Escribir ':' desde una cadena literal local en CODE.
+
     PUSH SI
     PUSH DS
     PUSH CS
@@ -136,7 +129,6 @@ EscribirTiempo PROC
 SeparadorTiempo DB ':',0
 EscribirTiempo ENDP
 
-; Sin parametros. Muestra el tiempo lateral; conserva AX,DX.
 MostrarTiempoJuego PROC
     PUSH AX
     PUSH DX
@@ -151,7 +143,6 @@ MostrarTiempoJuego PROC
     RET
 MostrarTiempoJuego ENDP
 
-; Sin parametros. Resultado final con el tiempo detenido; conserva AX,DX.
 MostrarTiempoFinal PROC
     PUSH AX
     PUSH DX

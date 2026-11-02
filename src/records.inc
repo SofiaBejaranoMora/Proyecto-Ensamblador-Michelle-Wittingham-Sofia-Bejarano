@@ -1,7 +1,3 @@
-; Archivo binario CE01: firma de 4 bytes + nueve entradas de 3 bytes.
-; Cada nivel tiene tres puestos: menos intentos, y en empate menos segundos.
-
-; Sin parametros. Inicializa la tabla vacia; conserva BX,CX.
 VaciarRecords PROC
     PUSH BX
     PUSH CX
@@ -16,8 +12,6 @@ RecordVaciarOtro:
     RET
 VaciarRecords ENDP
 
-; Entrada: BufferRecords con firma y 9 entradas.
-; Salida: CF=1 si no es valido. Conserva AX,SI.
 ValidarRecords PROC
     PUSH AX
     PUSH SI
@@ -60,8 +54,6 @@ RecordInvalido:
     RET
 ValidarRecords ENDP
 
-; Entrada: RutaRecords. Salida: tabla cargada o vacia; EstadoArchivo=1 si fallo.
-; Archivo inexistente es normal en la primera ejecucion. Conserva registros.
 CargarRecords PROC
     PUSH AX
     PUSH BX
@@ -114,8 +106,6 @@ RecordCargarFin:
     RET
 CargarRecords ENDP
 
-; Entrada: tabla y RutaRecords. Salida: EstadoArchivo=2 ante error de escritura.
-; Comprueba bytes escritos y cierre del archivo. Conserva AX,BX,CX,DX.
 GuardarRecords PROC
     PUSH AX
     PUSH BX
@@ -152,8 +142,6 @@ RecordGuardarFin:
     RET
 GuardarRecords ENDP
 
-; Entrada: NivelActual, TurnoActual y SegundosJuego de una victoria.
-; Salida: inserta en el top 3 y marca NuevoRecord=1 si clasifica. Conserva registros.
 InsertarRecord PROC
     PUSH AX
     PUSH BX
@@ -208,9 +196,9 @@ RecordInsertarFin:
     RET
 InsertarRecord ENDP
 
-; Solo las victorias normales participan; pruebas y claves manuales no cuentan.
-; Sin parametros; conserva registros mediante las rutinas llamadas.
 RegistrarVictoria PROC
+    CMP ModoMulti, 0
+    JNE RecordRegistrarFin
     CMP PartidaTerminada, 1
     JNE RecordRegistrarFin
     CMP ClaveManual, 0
@@ -225,7 +213,6 @@ RecordRegistrarFin:
     RET
 RegistrarVictoria ENDP
 
-; Sin parametros. Mensaje de resultado; conserva AX.
 MostrarAvisoRecord PROC
     PUSH AX
     CMP ClaveManual, 0
@@ -246,7 +233,6 @@ RecordAvisoFin:
     RET
 MostrarAvisoRecord ENDP
 
- ; Tarjeta: DX=coordenada superior y CL=color del acento. Conserva registros.
 DibujarTarjetaRecord PROC
     PUSH AX
     PUSH CX
@@ -257,7 +243,7 @@ DibujarTarjetaRecord PROC
     INC DX
     PINTAR_RECT 108, DX, 60, 42, 25
     ADD DX, 4
-    ; Una pequena corona distingue el primer puesto.
+
     PINTAR_RECT 148, DX, 2, 3, 20
     PINTAR_RECT 156, DX, 2, 3, 20
     DEC DX
@@ -270,8 +256,6 @@ DibujarTarjetaRecord PROC
     RET
 DibujarTarjetaRecord ENDP
 
-; Sin parametros. Tres tarjetas de dificultad y tres puestos por tarjeta.
-; Conserva registros. Restablece el estilo normal al salir.
 PantallaRecords PROC
     PUSH AX
     PUSH BX
@@ -340,7 +324,6 @@ RecordPantallaFin:
     RET
 PantallaRecords ENDP
 
-; SI=puesto global 0..8, BX=offset de entrada. Conserva registros.
 DibujarPuestoRecord PROC
     PUSH AX
     PUSH CX
@@ -349,7 +332,7 @@ DibujarPuestoRecord PROC
     MOV AX, SI
     MOV CL, 3
     DIV CL
-    ; AL=nivel, AH=puesto dentro de su tarjeta.
+
     MOV CL, AH
     XOR AH, AH
     MOV DL, 6
@@ -409,7 +392,6 @@ RecordPuestoFin:
     RET
 DibujarPuestoRecord ENDP
 
-; F3 abre la tabla desde menu o resultado. ESC vuelve al origen; conserva AX.
 ConsultarRecords PROC
     PUSH AX
     CALL PantallaRecords

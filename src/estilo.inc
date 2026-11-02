@@ -1,4 +1,3 @@
-; Fondo y texto compartidos por las pantallas de navegacion. Conserva AX.
 AbrirLienzo PROC
     PUSH AX
     CALL IniciarTransicion
@@ -9,14 +8,12 @@ AbrirLienzo PROC
     RET
 AbrirLienzo ENDP
 
-; Devuelve el texto al estilo normal del tablero; conserva registros y flags.
 CerrarEstilo PROC
     MOV FondoTexto, 0
     MOV ColorTexto, 3
     RET
 CerrarEstilo ENDP
 
-; Entrada: reglas y ClaveManual. Prepara el editor; conserva AX.
 DibujarEditorClave PROC
     PUSH AX
     CALL AbrirLienzo

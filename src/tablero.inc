@@ -2,7 +2,6 @@ TAB_PANEL EQU 22
 TAB_CASILLA EQU 23
 TAB_BORDE EQU 24
 
-; Entrada: reglas de partida. Salida: tablero completo; conserva registros.
 PantallaJuego PROC
     PUSH AX
     PUSH BX
@@ -11,7 +10,7 @@ PantallaJuego PROC
     PUSH SI
     CALL IniciarTransicion
     CALL LimpiarPantalla
-    ; Zonas del enunciado: encabezado, tablero, lateral y barra inferior.
+
     PINTAR_RECT 0, 0, 320, 20, 21
     PINTAR_RECT 4, 22, 196, 168, TAB_PANEL
     PINTAR_RECT 204, 22, 112, 168, TAB_PANEL

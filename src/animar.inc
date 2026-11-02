@@ -1,5 +1,3 @@
-; Entrada: reloj BIOS. Salida: CF=1 cada cuatro ticks (~0.22 s).
-; Conserva AX,CX,DX; alterna CuadroAnimacion, sin esperas que bloqueen teclas.
 AvanzarAnimacion PROC
     PUSH AX
     PUSH CX
@@ -25,7 +23,6 @@ AnimacionTodaviaNo:
     RET
 AvanzarAnimacion ENDP
 
-; Mascota de portada: dos cuadros, sin redibujar el resto. Conserva AX.
 AnimarPortada PROC
     PUSH AX
     CALL AvanzarAnimacion
@@ -41,7 +38,6 @@ PortadaAnimacionFin:
     RET
 AnimarPortada ENDP
 
-; Ficha seleccionada del lateral: dos cuadros. Conserva AX,BX,CX,DX.
 AnimarSeleccion PROC
     PUSH AX
     PUSH BX
@@ -65,8 +61,6 @@ SeleccionAnimacionFin:
     RET
 AnimarSeleccion ENDP
 
-; Victoria y derrota usan personajes distintos con dos posturas.
-; Sin parametros ni retorno; conserva AX.
 AnimarFinal PROC
     PUSH AX
     CALL AvanzarAnimacion
@@ -77,7 +71,6 @@ FinalAnimacionFin:
     RET
 AnimarFinal ENDP
 
-; Dibuja inmediatamente el cuadro actual del resultado. Conserva AX.
 DibujarCuadroFinal PROC
     PUSH AX
     CMP PartidaTerminada, 1

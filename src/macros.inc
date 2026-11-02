@@ -30,8 +30,6 @@ PINTAR_IMAGEN MACRO x, y, ancho, alto, datos, anchoOrigen, altoOrigen
     CALL DibujarSprite
 ENDM
 
-; Texto literal en la posicion indicada (fila, columna de 8x8).
-; La cadena queda en CODE, saltada por JMP; DS se restaura al terminar.
 ESCRIBIR_TEXTO MACRO fila, columna, texto
     LOCAL cadena, mostrar
     JMP NEAR PTR mostrar
@@ -51,7 +49,6 @@ mostrar:
     POP DS
 ENDM
 
-; Dibuja un cuadro completo: personaje y fondo juntos, sin borrado previo.
 PINTAR_ANIMACION MACRO x, y, ancho, alto, datos, anchoOrigen, altoOrigen, fondo
     MOV FondoSprite, fondo
     PINTAR_IMAGEN x, y, ancho, alto, datos, anchoOrigen, altoOrigen

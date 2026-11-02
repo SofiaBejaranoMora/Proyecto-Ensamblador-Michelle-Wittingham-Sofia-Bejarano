@@ -1,4 +1,3 @@
-; Entrada: DS=DATA. Salida: 27 colores DAC cargados; conserva AX,CX,DX,SI.
 CargarPaleta PROC
     PUSH AX
     PUSH CX
@@ -22,7 +21,6 @@ CargarComponente:
     RET
 CargarPaleta ENDP
 
-; Entrada: ES=A000h. Salida: pantalla negra; conserva AX,CX,DI; DF=0.
 LimpiarPantalla PROC
     PUSH AX
     PUSH CX
@@ -38,7 +36,6 @@ LimpiarPantalla PROC
     RET
 LimpiarPantalla ENDP
 
-; Pila: X,Y,ancho,alto,color (palabras). ES=A000h; conserva registros; RET 10.
 DibujarRectangulo PROC
     PUSH BP
     MOV BP, SP
@@ -70,8 +67,6 @@ FilaRectangulo:
     RET 10
 DibujarRectangulo ENDP
 
-; Pila: X,Y,ancho,alto,anchoOrigen,altoOrigen,puntero. DS=datos, ES=A000h.
-; Omite indice 0. Conserva registros; RET 14. Dimensiones positivas dentro de pantalla.
 DibujarSprite PROC
     PUSH BP
     MOV BP, SP
@@ -82,8 +77,7 @@ DibujarSprite PROC
     PUSH DX
     PUSH SI
     PUSH DI
-   
-    
+
     MOV WORD PTR [BP-2], 0
     MOV AX, 320
     MUL WORD PTR [BP+14]
@@ -109,7 +103,7 @@ ColumnaImagen:
     MOV AL, [SI]
     CMP AL, 0
     JNE EscribirPixelSprite
-    ; Animacion: escribir el fondo en la misma pasada evita un cuadro vacio.
+
     MOV AL, FondoSprite
     CMP AL, 0
     JE OmitirPixel
@@ -137,8 +131,6 @@ OmitirPixel:
     RET 14
 DibujarSprite ENDP
 
-
-; Copia la fuente ROM de 8x8 a DATA. Sin parametros; conserva registros y segmentos.
 CargarFuenteTexto PROC
     PUSH AX
     PUSH BX
@@ -173,8 +165,6 @@ CargarFuenteTexto PROC
     RET
 CargarFuenteTexto ENDP
 
-; DS:SI=cadena, DH=fila, DL=columna. Usa ColorTexto/FondoTexto.
-; Escribe cada celda de 8x8 directamente en A000h; conserva registros.
 EscribirTextoEnPanel PROC
     PUSH BP
     MOV BP, SP
@@ -203,7 +193,7 @@ EscribirTextoEnPanel PROC
     SHL AX, 1
     ADD DI, AX
 PanelTextoLetra:
-    ; Leer desde el segmento original y volver a DATA para la fuente y colores.
+
     PUSH DS
     MOV AX, [BP-2]
     MOV DS, AX

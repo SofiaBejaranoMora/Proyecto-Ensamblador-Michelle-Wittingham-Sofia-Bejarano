@@ -1,5 +1,3 @@
-// JUGAR: 59 x 15 pixels, 1 frame
-// Reconstructed from menuDato.inc pixel data.
 #include <stdint.h>
 
 #define JUGAR_FRAME_COUNT 1

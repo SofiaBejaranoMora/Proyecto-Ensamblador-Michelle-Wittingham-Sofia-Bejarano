@@ -1,4 +1,3 @@
-; Instrucciones con controles y leyenda grafica. Conserva AX.
 PantallaInstrucciones PROC
     PUSH AX
     CALL AbrirLienzo
@@ -27,6 +26,7 @@ PantallaInstrucciones PROC
     ESCRIBIR_TEXTO 18, 22, 'Ficha bien,'
     ESCRIBIR_TEXTO 20, 22, 'otro lugar'
     MOV FondoTexto, 21
+    ESCRIBIR_TEXTO 22, 3, 'F5 en el menu: duelo de 2 jugadores'
     ESCRIBIR_TEXTO 24, 3, 'ESC  Volver al menu'
     CALL CerrarEstilo
     CALL TerminarTransicion

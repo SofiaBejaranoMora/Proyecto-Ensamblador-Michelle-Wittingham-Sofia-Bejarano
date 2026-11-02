@@ -1,8 +1,3 @@
-; Modo inverso: jugador crea la clave y computadora intenta descubrirla.
-; Las rutinas auxiliares van primero; IniciarModoInverso queda al final.
-
-; Compara el candidato con todas las pistas anteriores.
-; Entrada: InversoCandidatoFicha. Salida: CF=1 si es compatible.
 InversoCompatible PROC
     PUSH AX
     PUSH BX
@@ -11,7 +6,6 @@ InversoCompatible PROC
     PUSH SI
     PUSH DI
 
-    ; Probar el candidato como secreto temporal.
     XOR SI, SI
     MOV CX, 5
 InversoCopiarCandidato:
@@ -28,7 +22,6 @@ InversoCompararPista:
     CMP SI, AX
     JAE InversoRestaurarSecreto
 
-    ; Recuperar la combinacion de un intento anterior.
     MOV AX, SI
     MOV BX, 5
     MUL BX
@@ -80,7 +73,6 @@ InversoFinCompatible:
     RET
 InversoCompatible ENDP
 
-; Devuelve CF=1 si el candidato cumple la regla de no repeticion.
 InversoSinRepetidos PROC
     PUSH AX
     PUSH BX
@@ -120,8 +112,6 @@ InversoFinRepetidos:
     RET
 InversoSinRepetidos ENDP
 
-; Enumera claves posibles y descarta las incompatibles con las pistas.
-; Salida: CF=1 y nuevo IntentoActual, o CF=0 si no queda ninguna.
 InversoBuscarIntento PROC
     PUSH AX
     PUSH BX
@@ -135,7 +125,6 @@ InversoOtroCandidato:
     JAE InversoNoHayCandidato
     INC InversoIndiceCandidato
 
-    ; Convertir numero de candidato a fichas 1..6 u 1..8.
     MOV InversoCandidatoFicha[4], 0
     XOR SI, SI
 InversoCrearDigito:
@@ -156,7 +145,6 @@ InversoCrearDigito:
     CALL InversoCompatible
     JNC InversoOtroCandidato
 
-    ; Guardar como nuevo intento la clave que sobrevivio al filtro.
     XOR SI, SI
     MOV CX, 5
 InversoCopiarIntento:
@@ -178,8 +166,6 @@ InversoFinBuscar:
     RET
 InversoBuscarIntento ENDP
 
-; Evalua, registra y dibuja un intento de la computadora.
-; Actualiza PartidaTerminada al ganar (1) o agotar turnos (2).
 InversoEjecutarIntento PROC
     PUSH AX
     PUSH BX
@@ -250,14 +236,12 @@ InversoFinEjecutar:
     RET
 InversoEjecutarIntento ENDP
 
-; Controla los intentos de la computadora hasta ganar, perder o ESC.
 InversoJugarComputadora PROC
     PUSH AX
     PUSH BX
     PUSH CX
     PUSH SI
 
-    ; Guardar fuera del evaluador la clave real del jugador.
     XOR SI, SI
     MOV CX, 5
 InversoGuardarClave:
@@ -267,17 +251,16 @@ InversoGuardarClave:
     LOOP InversoGuardarClave
 
     MOV InversoIndiceCandidato, 0
-    MOV InversoTotalCandidatos, 1296  ; 6^4
+    MOV InversoTotalCandidatos, 1296
     CMP NivelActual, 2
     JNE InversoPrepararPrimero
-    MOV InversoTotalCandidatos, 32768 ; 8^5
+    MOV InversoTotalCandidatos, 32768
 
 InversoPrepararPrimero:
     CALL PantallaJuego
     CALL BorrarCursorJuego
     CALL IniciarCronometro
 
-    ; Primer intento fijo para poder verificar el algoritmo.
     XOR SI, SI
     XOR CX, CX
     MOV CL, CantidadPosiciones
@@ -306,7 +289,7 @@ InversoEsperarComputadora:
 
     CALL InversoBuscarIntento
     JC InversoCandidatoEncontrado
-    ; No deberia suceder con pistas consistentes.
+
     MOV PartidaTerminada, 2
     MOV RelojActivo, 0
     PINTAR_RECT 0, 190, 320, 10, 21
@@ -326,7 +309,6 @@ InversoTerminarComputadora:
     RET
 InversoJugarComputadora ENDP
 
-; Entrada de la clave por parte del jugador.
 IniciarModoInverso PROC
     PUSH AX
     PUSH BX

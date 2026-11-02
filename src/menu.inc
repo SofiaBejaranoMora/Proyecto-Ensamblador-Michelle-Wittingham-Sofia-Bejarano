@@ -1,4 +1,3 @@
-; Dibuja solo una tarjeta. Entrada: OpcionMenu y FondoTexto; conserva registros.
 PintarOpcionMenu PROC
     PUSH AX
     PUSH BX
@@ -52,7 +51,6 @@ MenuTextoFin:
     RET
 PintarOpcionMenu ENDP
 
-; Entrada: OpcionMenu. Resalta solo la tarjeta elegida; conserva AX,BX.
 DibujarSelector PROC
     PUSH AX
     PUSH BX
@@ -69,7 +67,6 @@ DibujarSelector PROC
     RET
 DibujarSelector ENDP
 
-; Entrada: OpcionMenu anterior. Borra solo su resaltado; conserva AX,BX.
 BorrarSelector PROC
     PUSH AX
     PUSH BX
@@ -86,7 +83,6 @@ BorrarSelector PROC
     RET
 BorrarSelector ENDP
 
-; Menu completo. Guarda la opcion activa mientras prepara las cinco tarjetas.
 PantallaMenu PROC
     PUSH AX
     PUSH CX
@@ -113,7 +109,7 @@ MenuPintarTarjetas:
     MOV FondoTexto, 21
     MOV ColorTexto, 26
     ESCRIBIR_TEXTO 23, 3, 'F2 Prueba  F3 Records  F4 Inverso'
-    ESCRIBIR_TEXTO 24, 3, 'Flechas/ENTER elegir  ESC salir'
+    ESCRIBIR_TEXTO 24, 3, 'F5 Duelo   ENTER abrir   ESC salir'
     CALL DibujarSelector
     CALL CerrarEstilo
     CALL TerminarTransicion

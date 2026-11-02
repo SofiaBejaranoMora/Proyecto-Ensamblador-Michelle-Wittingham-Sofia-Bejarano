@@ -1,5 +1,3 @@
-// SALIR: 51 x 12 pixels, 1 frame
-// Reconstructed from menuDato.inc pixel data.
 #include <stdint.h>
 
 #define SALIR_FRAME_COUNT 1

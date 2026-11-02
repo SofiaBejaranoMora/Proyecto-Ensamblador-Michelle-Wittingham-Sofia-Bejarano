@@ -1,4 +1,3 @@
-; Portada con la misma zona de animacion que AnimarPortada. Conserva AX.
 PantallaInicio PROC
     PUSH AX
     CALL AbrirLienzo

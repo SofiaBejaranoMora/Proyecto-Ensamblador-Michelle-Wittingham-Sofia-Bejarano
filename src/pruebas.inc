@@ -1,5 +1,3 @@
-; /T es un modo de verificacion; no se ejecuta durante una partida normal.
-; Entrada: cola PSP. Salida: vuelve al juego, o termina DOS con codigo de prueba.
 RevisarPruebas PROC
     PUSH AX
     PUSH BX
@@ -32,7 +30,7 @@ PruebaSinParametro:
     RET
 PruebaEjecutar:
     MOV ModoPruebas, 1
-    ; Recuperar el segmento de video, no el PSP.
+
     MOV AX, 0A000H
     MOV ES, AX
     CALL ProbarEvaluacion
@@ -44,6 +42,8 @@ PruebaEjecutar:
     CALL ProbarRanking
     CALL ProbarArchivoRecords
     CALL ProbarPartidaCompleta
+    CALL ProbarDuelo
+    CALL ProbarComparacionDuelo
     CALL CapturarNiveles
     CALL CapturarVistas
     MOV AL, ModoAnterior
@@ -66,12 +66,10 @@ PruebaMensajeError:
     INT 21H
     MOV AX, 4C01H
     INT 21H
-PruebaOK DB 'OK: 4 casos, 3 niveles, validacion, historial, victoria, derrota, tiempo, records y transiciones.',13,10,'$'
+PruebaOK DB 'OK: 4 casos, 3 niveles, validacion, historial, victoria, derrota, tiempo, records, transiciones y duelo.',13,10,'$'
 PruebaError DB 'ERROR en las pruebas.',13,10,'$'
 RevisarPruebas ENDP
 
-; Los cuatro casos de la tabla 2 del PDF, ejecutados por la rutina real.
-; Sin parametros; incrementa PruebasFallidas. Conserva registros.
 ProbarEvaluacion PROC
     PUSH AX
     PUSH BX
@@ -114,8 +112,6 @@ PruebaCasoSiguiente:
     RET
 ProbarEvaluacion ENDP
 
-; Comprueba las tres dificultades, limites y ausencia de repetidos en facil.
-; Sin parametros; incrementa PruebasFallidas. Conserva registros.
 ProbarGeneracion PROC
     PUSH AX
     PUSH BX
@@ -160,8 +156,6 @@ PruebaGeneracionSiguiente:
     RET
 ProbarGeneracion ENDP
 
-; Una fila vacia no consume intento; BACKSPACE limpia solo la posicion activa.
-; Sin parametros; incrementa PruebasFallidas. Conserva AX.
 ProbarValidacion PROC
     PUSH AX
     CALL IniciarPartida
@@ -185,7 +179,6 @@ PruebaValidacionFin:
     RET
 ProbarValidacion ENDP
 
-; Volcado de 64000 bytes para revisar el dibujo del modo /T. Conserva registros.
 CapturarTablero PROC
     PUSH AX
     PUSH BX
@@ -236,8 +229,6 @@ NombreVictoria DB 'GANAR.RAW',0
 NombreDerrota DB 'PERDER.RAW',0
 CapturarTablero ENDP
 
-; Simula teclas del editor y comprueba una victoria y una derrota completas.
-; Sin parametros; incrementa PruebasFallidas. Conserva registros.
 ProbarPartidaCompleta PROC
     PUSH AX
     PUSH CX
@@ -271,7 +262,7 @@ SaltoLocalPruebas2:
 SaltoLocalPruebas3:
     CALL AnimarFinal
     CALL CapturarTablero
-    ; Derrota: secreto 1111, diez intentos 2222.
+
     CALL IniciarPartida
     CALL PantallaJuego
     MOV CodigoSecreto[0], 1
@@ -314,7 +305,6 @@ PruebaPartidaFin:
     RET
 ProbarPartidaCompleta ENDP
 
-; Tres capturas con las dimensiones reales de cada nivel. Conserva registros.
 CapturarNiveles PROC
     PUSH AX
     MOV NivelActual, 0
@@ -330,8 +320,6 @@ PruebaCapturarNivel:
     RET
 CapturarNiveles ENDP
 
-; Simula un intervalo vencido y comprueba el cambio real de cuadro.
-; Sin parametros; incrementa PruebasFallidas. Conserva registros.
 ProbarAnimacion PROC
     PUSH AX
     PUSH BX
@@ -355,8 +343,6 @@ PruebaAnimacionFin:
     RET
 ProbarAnimacion ENDP
 
-; Segundos, limite 99:59 y pasos por medianoche/desbordamiento bajo.
-; Sin parametros; incrementa PruebasFallidas. Conserva AX,CX,DX.
 ProbarTiempo PROC
     PUSH AX
     PUSH CX
@@ -396,7 +382,7 @@ ProbarTiempo PROC
     JNE PruebaTiempoFallo
     CMP TicksPartida+2, 0
     JNE PruebaTiempoFallo
-    ; Probar el camino activo y que la pantalla reciba el mismo segundo.
+
     CALL IniciarCronometro
     MOV TicksPartida, 182
     CALL ActualizarCronometro
@@ -421,8 +407,6 @@ PruebaTiempoFin:
     RET
 ProbarTiempo ENDP
 
-; Tres puestos por nivel, desempate por tiempo y rechazo de una marca peor.
-; Sin parametros; incrementa PruebasFallidas. Conserva AX.
 ProbarRanking PROC
     PUSH AX
     CALL VaciarRecords
@@ -461,7 +445,7 @@ ProbarRanking PROC
     JNE PruebaRankingFallo
     CMP Records[0], 3
     JNE PruebaRankingFallo
-    ; RegistrarVictoria no debe insertar resultados de /T.
+
     MOV PartidaTerminada, 1
     MOV TurnoActual, 1
     CALL RegistrarVictoria
@@ -474,9 +458,6 @@ PruebaRankingFin:
     RET
 ProbarRanking ENDP
 
-; Lectura/escritura DOS reales sobre PRUEBREC.TMP, nunca RECORDS.DAT.
-; Prueba tambien archivo truncado y denegacion de escritura en la unidad Z:.
-; Sin parametros; incrementa PruebasFallidas. Conserva registros.
 ProbarArchivoRecords PROC
     PUSH AX
     PUSH BX
@@ -496,7 +477,7 @@ ProbarArchivoRecords PROC
     JNE PruebaArchivoFallo
     CMP Records[9], 2
     JNE PruebaArchivoFallo
-    ; La ruta de victoria real debe guardar; manual y derrota quedan excluidas.
+
     MOV ModoPruebas, 0
     MOV NivelActual, 1
     MOV TurnoActual, 1
@@ -521,15 +502,28 @@ ProbarArchivoRecords PROC
     JNE PruebaArchivoFallo
     CMP WORD PTR Records[10], 20
     JNE PruebaArchivoFallo
+
+    MOV ModoPruebas, 0
+    MOV ModoMulti, 1
+    MOV SegundosJuego, 5
+    MOV NuevoRecord, 0
+    CALL RegistrarVictoria
+    MOV ModoMulti, 0
+    MOV ModoPruebas, 1
+    CMP NuevoRecord, 0
+    JNE PruebaArchivoFallo
+    CALL CargarRecords
+    CMP WORD PTR Records[10], 20
+    JNE PruebaArchivoFallo
     CALL PantallaRecords
     CALL CapturarPuntajes
-    ; Z: es la unidad interna de DOSBox y no admite crear archivos.
+
     MOV RutaRecords, OFFSET NombreRecordsBloqueado
     CALL GuardarRecords
     CMP EstadoArchivo, 2
     JNE PruebaArchivoFallo
     MOV RutaRecords, OFFSET NombreRecordsPrueba
-    ; Truncar a cinco bytes: el cargador debe rechazarlo y dejar tabla vacia.
+
     MOV DX, RutaRecords
     XOR CX, CX
     MOV AH, 3CH
@@ -550,6 +544,7 @@ ProbarArchivoRecords PROC
 PruebaArchivoFallo:
     INC PruebasFallidas
 PruebaArchivoLimpiar:
+    MOV ModoMulti, 0
     MOV ModoPruebas, 1
     MOV DX, OFFSET NombreRecordsPrueba
     MOV AH, 41H
@@ -565,7 +560,6 @@ PruebaArchivoLimpiar:
     RET
 ProbarArchivoRecords ENDP
 
-; Captura de la tabla durante /T. Conserva registros.
 CapturarPuntajes PROC
     PUSH AX
     PUSH BX
@@ -598,7 +592,6 @@ PuntajeCapturaFin:
 NombrePuntajes DB 'PUNTOS.RAW',0
 CapturarPuntajes ENDP
 
-; Cadena local y captura sin agregar variables al juego.
 CAPTURAR_VISTA MACRO nombre
     LOCAL ruta, continuar
     JMP NEAR PTR continuar
@@ -614,7 +607,6 @@ continuar:
     POP DS
 ENDM
 
-; DS:DX=nombre de archivo. Guarda A000h para inspeccion; conserva registros.
 GuardarVista PROC
     PUSH AX
     PUSH BX
@@ -643,14 +635,13 @@ GuardarVistaFin:
     RET
 GuardarVista ENDP
 
-; Captura portada, menu, dificultad, instrucciones y creditos. Conserva AX.
 CapturarVistas PROC
     PUSH AX
     CALL PantallaInicio
     CAPTURAR_VISTA 'PORTADA.RAW'
     CALL PantallaMenu
     CAPTURAR_VISTA 'MENU.RAW'
-    ; Simular un cambio de opcion y comprobar que no se altera el estado de juego.
+
     CALL BorrarSelector
     MOV OpcionMenu, 2
     CALL DibujarSelector
@@ -672,8 +663,6 @@ CapturarVistas PROC
     RET
 CapturarVistas ENDP
 
-; Prueba visual de ambos editores, sin esperar entrada del teclado.
-; Conserva AX,SI; solo se usa al final de /T.
 CapturarEditores PROC
     PUSH AX
     PUSH SI
@@ -699,8 +688,6 @@ CapturarEditores PROC
     RET
 CapturarEditores ENDP
 
-; Ejecuta el efecto real y lee el DAC para verificar negro, brillo medio y original.
-; Conserva registros. Solo usa paleta/pantalla; no toca archivos de puntajes.
 ProbarTransiciones PROC
     PUSH AX
     PUSH CX
@@ -738,7 +725,7 @@ PruebaFundidoOriginal:
     LOOP PruebaFundidoOriginal
     MOV BrilloActual, 8
     CALL AplicarBrillo
-    ; Blanco original (63,63,63) debe quedar en (31,31,31).
+
     MOV DX, 03C7H
     MOV AL, 3
     OUT DX, AL
@@ -762,3 +749,191 @@ PruebaFundidoFin:
     POP AX
     RET
 ProbarTransiciones ENDP
+
+EncolarVictoriaMulti PROC
+    PUSH AX
+    PUSH BX
+    PUSH CX
+    CALL VaciarTeclasMulti
+    MOV BX, 3
+PruebaMultiEncolarCasilla:
+    MOV CX, 0231H
+    MOV AH, 05H
+    INT 16H
+    CMP AL, 0
+    JNE PruebaMultiTecladoFallo
+    MOV CX, 4D00H
+    MOV AH, 05H
+    INT 16H
+    CMP AL, 0
+    JNE PruebaMultiTecladoFallo
+    DEC BX
+    JNZ PruebaMultiEncolarCasilla
+    MOV CX, 0231H
+    MOV AH, 05H
+    INT 16H
+    CMP AL, 0
+    JNE PruebaMultiTecladoFallo
+    MOV CX, 1C0DH
+    MOV AH, 05H
+    INT 16H
+    CMP AL, 0
+    JNE PruebaMultiTecladoFallo
+    POP CX
+    POP BX
+    POP AX
+    CLC
+    RET
+PruebaMultiTecladoFallo:
+    POP CX
+    POP BX
+    POP AX
+    STC
+    RET
+EncolarVictoriaMulti ENDP
+
+ProbarDuelo PROC
+    PUSH AX
+    PUSH CX
+    PUSH SI
+    MOV NivelActual, 0
+PruebaMultiOtroNivel:
+    MOV ModoMulti, 0
+    CALL IniciarPartida
+    CALL GuardarClaveMulti
+    MOV ModoMulti, 1
+    MOV CodigoSecreto[0], 0
+    CALL IniciarPartida
+    XOR SI, SI
+PruebaMultiMismaClave:
+    MOV AL, CodigoSecreto[SI]
+    CMP AL, ClaveMulti[SI]
+    JNE PruebaMultiFallo
+    CMP IntentoActual[SI], 0
+    JNE PruebaMultiFallo
+    INC SI
+    CMP SI, 5
+    JB PruebaMultiMismaClave
+    INC NivelActual
+    CMP NivelActual, 3
+    JB PruebaMultiOtroNivel
+
+    MOV NivelActual, 1
+    MOV ClaveMulti[0], 1
+    MOV ClaveMulti[1], 1
+    MOV ClaveMulti[2], 1
+    MOV ClaveMulti[3], 1
+    MOV JugadorMulti, 0
+PruebaMultiTurno:
+    CALL IniciarPartida
+    CALL PantallaJuego
+    CALL EncolarVictoriaMulti
+    JC PruebaMultiFallo
+    CALL ControlarTurnoMulti
+    JC PruebaMultiFallo
+    CMP PartidaTerminada, 1
+    JNE PruebaMultiFallo
+    CMP RelojActivo, 0
+    JNE PruebaMultiFallo
+    CMP NuevoRecord, 0
+    JNE PruebaMultiFallo
+    CMP JugadorMulti, 0
+    JNE PruebaMultiDosTermino
+    CMP ResultadoMulti[0], 1
+    JNE PruebaMultiFallo
+    CMP IntentosMulti[0], 1
+    JNE PruebaMultiFallo
+    CAPTURAR_VISTA 'DUELJ1.RAW'
+    INC JugadorMulti
+    CALL PantallaTurnoMulti
+    CAPTURAR_VISTA 'TURNO2.RAW'
+    JMP PruebaMultiTurno
+PruebaMultiDosTermino:
+    CMP ResultadoMulti[1], 1
+    JNE PruebaMultiFallo
+    CMP IntentosMulti[1], 1
+    JNE PruebaMultiFallo
+    MOV TiempoMulti[0], 90
+    MOV TiempoMulti[2], 90
+    CALL CompararDuelo
+    CMP GanadorMulti, 0
+    JNE PruebaMultiFallo
+    CALL PantallaDuelo
+    CAPTURAR_VISTA 'DUELFIN.RAW'
+
+    CALL IniciarPartida
+    CALL PantallaJuego
+    CALL VaciarTeclasMulti
+    MOV CX, 011BH
+    MOV AH, 05H
+    INT 16H
+    CMP AL, 0
+    JNE PruebaMultiFallo
+    CALL ControlarTurnoMulti
+    JNC PruebaMultiFallo
+    CMP RelojActivo, 0
+    JNE PruebaMultiFallo
+    CMP PartidaTerminada, 0
+    JNE PruebaMultiFallo
+    JMP PruebaMultiFin
+PruebaMultiFallo:
+    INC PruebasFallidas
+PruebaMultiFin:
+    MOV ModoMulti, 0
+    MOV JugadorMulti, 0
+    MOV NivelActual, 0
+    MOV RelojActivo, 0
+    CALL VaciarTeclasMulti
+    POP SI
+    POP CX
+    POP AX
+    RET
+ProbarDuelo ENDP
+
+ComprobarGanadorMulti PROC
+    CALL CompararDuelo
+    CMP AL, GanadorMulti
+    JE PruebaGanadorCorrecto
+    INC PruebasFallidas
+PruebaGanadorCorrecto:
+    RET
+ComprobarGanadorMulti ENDP
+
+ProbarComparacionDuelo PROC
+    PUSH AX
+    MOV ResultadoMulti[0], 1
+    MOV ResultadoMulti[1], 1
+    MOV IntentosMulti[0], 3
+    MOV IntentosMulti[1], 4
+    MOV TiempoMulti[0], 300
+    MOV TiempoMulti[2], 1
+    MOV AL, 1
+    CALL ComprobarGanadorMulti
+    MOV IntentosMulti[0], 4
+    MOV IntentosMulti[1], 3
+    MOV AL, 2
+    CALL ComprobarGanadorMulti
+    MOV IntentosMulti[0], 3
+    MOV TiempoMulti[0], 100
+    MOV TiempoMulti[2], 90
+    MOV AL, 2
+    CALL ComprobarGanadorMulti
+    MOV TiempoMulti[0], 80
+    MOV AL, 1
+    CALL ComprobarGanadorMulti
+    MOV TiempoMulti[0], 90
+    XOR AL, AL
+    CALL ComprobarGanadorMulti
+    MOV ResultadoMulti[1], 2
+    MOV AL, 1
+    CALL ComprobarGanadorMulti
+    MOV ResultadoMulti[0], 2
+    MOV ResultadoMulti[1], 1
+    MOV AL, 2
+    CALL ComprobarGanadorMulti
+    MOV ResultadoMulti[1], 2
+    XOR AL, AL
+    CALL ComprobarGanadorMulti
+    POP AX
+    RET
+ProbarComparacionDuelo ENDP

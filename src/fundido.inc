@@ -1,8 +1,3 @@
-; Transiciones VGA: se cambia la paleta, nunca los pixeles de los personajes.
-; La tabla Paleta permanece intacta para recuperar exactamente sus colores.
-
-; Espera el comienzo de un cuadro VGA. Conserva AX,CX,DX.
-; Las esperas tienen limite para no colgarse si el puerto no responde.
 EsperarCuadroVGA PROC
     PUSH AX
     PUSH CX
@@ -29,8 +24,6 @@ FundidoEsperaFin:
     RET
 EsperarCuadroVGA ENDP
 
-; Entrada: BrilloActual (0..16). Salida: DAC actualizado; conserva registros.
-; Primero prepara las 81 componentes en RAM; luego las envia durante el retrazo.
 AplicarBrillo PROC
     PUSH AX
     PUSH BX
@@ -45,7 +38,7 @@ AplicarBrillo PROC
 FundidoCalcularColor:
     LODSB
     MUL BL
-    ; componente = componenteOriginal * brillo / 16.
+
     SHR AX, 1
     SHR AX, 1
     SHR AX, 1
@@ -73,8 +66,6 @@ FundidoEnviarColor:
     RET
 AplicarBrillo ENDP
 
-; Antes de dibujar otra pantalla: bajar a negro en 16 cuadros (~0.23 s).
-; Conserva registros. /T evita las esperas en capturas y pruebas ajenas al efecto.
 IniciarTransicion PROC
     CMP ModoPruebas, 0
     JNE FundidoSalidaFin
@@ -89,8 +80,6 @@ FundidoSalidaFin:
     RET
 IniciarTransicion ENDP
 
-; Al terminar de dibujar: revelar la nueva pantalla hasta su brillo original.
-; Conserva registros. No se llama al mover selectores ni animar personajes.
 TerminarTransicion PROC
     CMP ModoPruebas, 0
     JNE FundidoEntradaFin

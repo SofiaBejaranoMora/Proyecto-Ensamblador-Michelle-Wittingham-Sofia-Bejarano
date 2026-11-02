@@ -1,5 +1,3 @@
-; Dibujo comun de cualquier personaje.
-; Entrada: AL=1..8, BX=X, DX=Y, CX=tamano cuadrado. Conserva registros.
 DibujarPersonaje PROC
     PUSH AX
     PUSH SI
@@ -28,7 +26,6 @@ PersonajeDibujar:
     RET
 DibujarPersonaje ENDP
 
-; Entrada: FichaSeleccionada. Salida: BX=X, DX=Y; conserva AX.
 CalcularMarcaFicha PROC
     PUSH AX
     MOV AL, FichaSeleccionada
@@ -53,7 +50,6 @@ CalcularMarcaFicha PROC
     RET
 CalcularMarcaFicha ENDP
 
-; Dibuja las 6 u 8 fichas sin cambiar la seleccion. Conserva registros.
 RedibujarPanelFichas PROC
     PUSH AX
     PUSH BX
@@ -69,7 +65,7 @@ PanelOtraFicha:
     MOV AX, SI
     MOV FichaSeleccionada, AL
     CALL CalcularMarcaFicha
-    ; Pintar los margenes sin borrar el personaje que ya se ve.
+
     PINTAR_RECT BX, DX, 28, 2, TAB_CASILLA
     ADD DX, 2
     PINTAR_RECT BX, DX, 6, 16, TAB_CASILLA
@@ -86,7 +82,7 @@ PanelOtraFicha:
     MOV FondoSprite, TAB_CASILLA
     CALL DibujarPersonaje
     MOV FondoSprite, 0
-    ; Etiqueta 1..8 segun el orden de las fichas.
+
     ADD BX, 14
     ADD DX, 18
     MOV AX, SI
@@ -113,7 +109,6 @@ PanelOtraFicha:
     RET
 RedibujarPanelFichas ENDP
 
-; Cursor de posicion: BX=X, DX=Y calculados del estado. Conserva AX,BX,DX.
 DibujarCursorJuego PROC
     PUSH AX
     PUSH BX
@@ -132,7 +127,6 @@ DibujarCursorJuego PROC
     RET
 DibujarCursorJuego ENDP
 
-; Borra el cursor anterior. Conserva AX,BX,DX.
 BorrarCursorJuego PROC
     PUSH AX
     PUSH BX
@@ -151,7 +145,6 @@ BorrarCursorJuego PROC
     RET
 BorrarCursorJuego ENDP
 
-; Dibuja el contenido real de la posicion, incluso si esta vacia. Conserva registros.
 DibujarFichaActual PROC
     PUSH AX
     PUSH BX
@@ -172,7 +165,7 @@ DibujarFichaActual PROC
     JE FichaActualFin
     ADD BX, 2
     MOV CX, 12
-    ; Altura 12: dejar el borde inferior para el cursor.
+
     CALL DibujarPersonaje
     CALL DibujarCursorJuego
 FichaActualFin:
@@ -184,7 +177,6 @@ FichaActualFin:
     RET
 DibujarFichaActual ENDP
 
-; Numero decimal de dos cifras. AL=0..99; DH=fila, DL=columna. Conserva registros.
 EscribirNumero PROC
     PUSH AX
     PUSH BX
@@ -209,7 +201,6 @@ EscribirNumero PROC
     RET
 EscribirNumero ENDP
 
-; Indicadores persistentes en encabezado y lateral. Conserva AX,DX.
 MostrarEstado PROC
     PUSH AX
     PUSH DX
@@ -243,19 +234,19 @@ EstadoContadores:
     JE EstadoFin
     ESCRIBIR_TEXTO 22, 26, 'PRUEBA MANUAL'
 EstadoFin:
+    CALL MostrarJugadorMulti
     CALL MostrarTiempoJuego
     POP DX
     POP AX
     RET
 MostrarEstado ENDP
 
-; Dos numeros en la fila evaluada; verde=toros, naranja=vacas. Conserva AX,DX.
 DibujarPistas PROC
     PUSH BX
     PUSH CX
     PUSH AX
     PUSH DX
-    ; El texto BIOS usa filas de 8: dibujar numeros a pixel exacto con la fuente ROM.
+
     MOV AL, AciertosExactos
     ADD AL, '0'
     MOV BX, 150
@@ -275,8 +266,6 @@ DibujarPistas PROC
     RET
 DibujarPistas ENDP
 
-; Barra inferior: solo se actualiza ante una accion, no en cada espera.
-; Sin parametros ni retorno; conserva AX mediante la macro.
 AyudaJuego PROC
     PUSH AX
     PINTAR_RECT 0, 190, 320, 10, 21
@@ -285,7 +274,6 @@ AyudaJuego PROC
     RET
 AyudaJuego ENDP
 
-; Sin parametros. Muestra aviso sin consumir turno; conserva AX.
 AvisarIncompleto PROC
     PUSH AX
     PINTAR_RECT 0, 190, 320, 10, 21
@@ -294,7 +282,6 @@ AvisarIncompleto PROC
     RET
 AvisarIncompleto ENDP
 
-; Sin parametros. Muestra aviso de ficha repetida; conserva AX.
 AvisarRepetida PROC
     PUSH AX
     PINTAR_RECT 0, 190, 320, 10, 21
@@ -303,7 +290,6 @@ AvisarRepetida PROC
     RET
 AvisarRepetida ENDP
 
-; Digito de 3x5 pixeles. AL=ASCII, BX=X, DX=Y, CL=color. Conserva registros.
 DibujarDigito PROC
     PUSH AX
     PUSH BX
@@ -350,7 +336,6 @@ DigitoTransparente:
     RET
 DibujarDigito ENDP
 
-; Pantalla de resultado y clave revelada. Conserva registros.
 PantallaFin PROC
     PUSH AX
     PUSH BX
@@ -374,7 +359,7 @@ FinMostrarClave:
     PINTAR_RECT 16, 44, 288, 48, 22
     MOV FondoTexto, 22
     ESCRIBIR_TEXTO 6, 12, 'La clave secreta'
-    ; Centrar tanto las claves de cuatro como las de cinco posiciones.
+
     MOV AL, CantidadPosiciones
     MOV BL, 28
     MUL BL
@@ -437,15 +422,13 @@ FinOtraFicha:
     RET
 PantallaFin ENDP
 
-; Editor de secreto para la revision: F2 desde el menu.
-; Devuelve CF=1 si se cancela, CF=0 si confirma. Conserva registros.
 IntroducirCodigo PROC
     PUSH AX
     PUSH BX
     PUSH DX
     PUSH SI
     MOV ClaveManual, 1
-    ; Se permiten repeticiones para probar los casos de la tabla 2.
+
     MOV PermitirRepetidos, 1
     CALL DibujarEditorClave
     XOR SI, SI
@@ -501,7 +484,6 @@ ManualFin:
     RET
 IntroducirCodigo ENDP
 
-; SI=cantidad de digitos del editor; conserva registros.
 MostrarClaveManual PROC
     PUSH AX
     PUSH BX

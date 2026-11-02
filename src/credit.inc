@@ -1,4 +1,3 @@
-; Creditos de ambas integrantes. Conserva AX.
 PantallaCreditos PROC
     PUSH AX
     CALL AbrirLienzo
