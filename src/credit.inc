@@ -21,7 +21,6 @@ PantallaCreditos PROC
     ESCRIBIR_TEXTO 21, 3, 'Gracias por jugar nuestra historia.'
     ESCRIBIR_TEXTO 24, 3, 'ESC  Volver al menu'
     CALL CerrarEstilo
-    CALL TerminarTransicion
     POP AX
     RET
 PantallaCreditos ENDP

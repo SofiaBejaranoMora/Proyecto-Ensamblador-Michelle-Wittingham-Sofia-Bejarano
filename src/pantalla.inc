@@ -21,7 +21,6 @@ PantallaInicio PROC
     ESCRIBIR_TEXTO 23, 3, 'MICHELLE WITTINGHAM / SOFIA BEJARANO'
     ESCRIBIR_TEXTO 24, 15, 'ESC  Salir'
     CALL CerrarEstilo
-    CALL TerminarTransicion
     POP AX
     RET
 PantallaInicio ENDP

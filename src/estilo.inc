@@ -1,6 +1,5 @@
 AbrirLienzo PROC
     PUSH AX
-    CALL IniciarTransicion
     PINTAR_RECT 0, 0, 320, 200, 21
     MOV FondoTexto, 21
     MOV ColorTexto, 3
@@ -53,7 +52,6 @@ EditorMostrarEntrada:
     XOR SI, SI
     CALL MostrarClaveManual
     POP SI
-    CALL TerminarTransicion
     POP AX
     RET
 DibujarEditorClave ENDP

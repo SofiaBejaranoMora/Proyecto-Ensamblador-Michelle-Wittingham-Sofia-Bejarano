@@ -23,7 +23,6 @@ DificultadPintarTarjetas:
     ESCRIBIR_TEXTO 24, 3, 'ESC vuelve sin cambiar tu nivel'
     CALL DibujarSelectorDificultad
     CALL CerrarEstilo
-    CALL TerminarTransicion
     POP CX
     POP AX
     RET

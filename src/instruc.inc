@@ -26,10 +26,9 @@ PantallaInstrucciones PROC
     ESCRIBIR_TEXTO 18, 22, 'Ficha bien,'
     ESCRIBIR_TEXTO 20, 22, 'otro lugar'
     MOV FondoTexto, 21
-    ESCRIBIR_TEXTO 22, 3, 'F3 en el menu: consulta tus records'
+    ESCRIBIR_TEXTO 22, 3, 'Completa la fila y pulsa ENTER'
     ESCRIBIR_TEXTO 24, 3, 'ESC  Volver al menu'
     CALL CerrarEstilo
-    CALL TerminarTransicion
     POP AX
     RET
 PantallaInstrucciones ENDP

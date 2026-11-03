@@ -42,31 +42,10 @@ CuadroAnimacion DB 0
 
 FondoSprite DB 0
 
-BrilloActual DB 16
-PaletaPaso DB 81 DUP(0)
-
 FondoTexto DB 0
 ColorTexto DB 3
 FuenteTexto DB 2048 DUP(0)
 PruebasFallidas DB 0
-ModoPruebas DB 0
-
-TickReloj DW 0, 0
-TicksPartida DW 0, 0
-SegundosJuego DW 0
-SegundosMostrados DW 0FFFFH
-RelojActivo DB 0
-
-NombreRecords DB 'RECORDS.DAT', 0
-NombreRecordsPrueba DB 'PRUEBREC.TMP', 0
-NombreRecordsBloqueado DB 'Z:\RECORDS.DAT', 0
-RutaRecords DW OFFSET NombreRecords
-FirmaRecords DB 'CE01'
-Records DB 9 DUP(255, 255, 255)
-BufferRecords DB 32 DUP(0)
-NuevoRecord DB 0
-EstadoArchivo DB 0
-
 
 INCLUDE paleta.inc
 INCLUDE figuras.inc
@@ -90,7 +69,6 @@ INCLUDE menuDato.inc
 
 .CODE
 INCLUDE video.inc
-INCLUDE fundido.inc
 INCLUDE estilo.inc
 INCLUDE pantalla.inc
 INCLUDE menu.inc
@@ -103,8 +81,6 @@ INCLUDE juego.inc
 INCLUDE interfaz.inc
 INCLUDE animar.inc
 INCLUDE pruebas.inc
-INCLUDE tiempo.inc
-INCLUDE records.inc
 
 MAIN PROC
     MOV AX, @DATA
@@ -119,7 +95,6 @@ MAIN PROC
     MOV ES, AX
 
     CALL RevisarPruebas
-    CALL CargarRecords
     CALL PantallaInicio
     EsperarInicio:
         CALL AnimarPortada
@@ -148,11 +123,6 @@ MAIN PROC
         JNE RevisarTeclaMenu
         JMP Terminar
     RevisarTeclaMenu:
-        CMP AH, 3DH
-        JNE RevisarPruebaManual
-        CALL ConsultarRecords
-        JMP ActualizarMenu
-    RevisarPruebaManual:
         CMP AH, 3CH
         JNE RevisarAbajoMenu
         CALL IniciarPartida
@@ -241,7 +211,6 @@ MAIN PROC
         CALL PantallaMenu
         JMP EsperarMenu
     Terminar:
-        CALL IniciarTransicion
         CALL ApagarSonido
         MOV AX, 0003H
         INT 10H

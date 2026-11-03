@@ -234,7 +234,6 @@ EstadoContadores:
     JE EstadoFin
     ESCRIBIR_TEXTO 22, 26, 'PRUEBA MANUAL'
 EstadoFin:
-    CALL MostrarTiempoJuego
     POP DX
     POP AX
     RET
@@ -391,16 +390,6 @@ FinOtraFicha:
     MOV DH, 12
     MOV DL, 14
     CALL EscribirNumero
-    MOV ColorTexto, 26
-    ESCRIBIR_TEXTO 12, 21, 'Tiempo'
-    MOV ColorTexto, 3
-    MOV AX, SegundosJuego
-    MOV DH, 12
-    MOV DL, 29
-    CALL EscribirTiempo
-    MOV FondoTexto, 21
-    MOV ColorTexto, 7
-    CALL MostrarAvisoRecord
     PINTAR_RECT 32, 164, 256, 20, 25
     PINTAR_RECT 32, 164, 2, 20, 7
     MOV FondoTexto, 25
@@ -409,10 +398,8 @@ FinOtraFicha:
     MOV FondoTexto, 21
     MOV ColorTexto, 26
     ESCRIBIR_TEXTO 24, 3, 'ESC Menu'
-    ESCRIBIR_TEXTO 24, 23, 'F3 Tus records'
     CALL DibujarCuadroFinal
     CALL CerrarEstilo
-    CALL TerminarTransicion
     POP SI
     POP DX
     POP CX
