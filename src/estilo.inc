@@ -17,17 +17,9 @@ CerrarEstilo ENDP
 DibujarEditorClave PROC
     PUSH AX
     CALL AbrirLienzo
-    CMP ClaveManual, 0
-    JE EditorTituloInverso
     ESCRIBIR_TEXTO 1, 3, 'TU CLAVE, TUS PRUEBAS'
     MOV ColorTexto, 26
     ESCRIBIR_TEXTO 3, 3, 'Prueba pistas con tu propia clave.'
-    JMP EditorMostrarReglas
-EditorTituloInverso:
-    ESCRIBIR_TEXTO 1, 3, 'AHORA TU GUARDAS EL SECRETO'
-    MOV ColorTexto, 26
-    ESCRIBIR_TEXTO 3, 3, 'Yo intentare descubrir tu clave.'
-EditorMostrarReglas:
     PINTAR_RECT 16, 48, 288, 40, 22
     PINTAR_RECT 16, 48, 2, 40, 7
     MOV FondoTexto, 22

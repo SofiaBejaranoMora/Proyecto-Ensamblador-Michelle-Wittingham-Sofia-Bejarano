@@ -63,13 +63,7 @@ InicialLimpiarPistas:
         MOV HistorialVacas[SI], 0
         INC SI
         LOOP InicialLimpiarPistas
-        CMP ModoMulti, 0
-        JNE InicialClaveCompartida
         CALL GenerarCodigo
-        JMP InicialClaveLista
-InicialClaveCompartida:
-        CALL RestaurarClaveMulti
-InicialClaveLista:
         POP SI
         POP CX
         POP AX
@@ -283,8 +277,6 @@ ConfirmarTermino:
     CALL ActualizarCronometro
     MOV RelojActivo, 0
 
-    CMP ModoMulti, 0
-    JNE ConfirmarFin
     CALL RegistrarVictoria
     CALL PantallaFin
     JMP ConfirmarFin

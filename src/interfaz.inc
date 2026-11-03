@@ -234,7 +234,6 @@ EstadoContadores:
     JE EstadoFin
     ESCRIBIR_TEXTO 22, 26, 'PRUEBA MANUAL'
 EstadoFin:
-    CALL MostrarJugadorMulti
     CALL MostrarTiempoJuego
     POP DX
     POP AX

@@ -108,8 +108,8 @@ MenuPintarTarjetas:
     PINTAR_IMAGEN 276, 142, 28, 28, SpriteCalabaza, 16, 16
     MOV FondoTexto, 21
     MOV ColorTexto, 26
-    ESCRIBIR_TEXTO 23, 3, 'F2 Prueba  F3 Records  F4 Inverso'
-    ESCRIBIR_TEXTO 24, 3, 'F5 Duelo   ENTER abrir   ESC salir'
+    ESCRIBIR_TEXTO 23, 3, 'F2 Prueba manual   F3 Records'
+    ESCRIBIR_TEXTO 24, 3, 'ENTER abrir   ESC salir'
     CALL DibujarSelector
     CALL CerrarEstilo
     CALL TerminarTransicion

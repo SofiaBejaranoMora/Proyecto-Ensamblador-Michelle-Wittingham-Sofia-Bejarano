@@ -31,11 +31,6 @@ UsadoIntento DB 5 DUP(0)
 CodigoSecreto DB 5 DUP(0)
 IntentoActual DB 5 DUP(0)
 
-InversoClaveJugador DB 5 DUP(0)
-InversoCandidatoFicha DB 5 DUP(0)
-InversoIndiceCandidato DW 0
-InversoTotalCandidatos DW 0
-InversoEsCompatible DB 0
 Historial DB 60 DUP(0)
 HistorialToros DB 12 DUP(0)
 HistorialVacas DB 12 DUP(0)
@@ -72,13 +67,6 @@ BufferRecords DB 32 DUP(0)
 NuevoRecord DB 0
 EstadoArchivo DB 0
 
-ModoMulti DB 0
-JugadorMulti DB 0
-ClaveMulti DB 5 DUP(0)
-ResultadoMulti DB 2 DUP(0)
-IntentosMulti DB 2 DUP(0)
-TiempoMulti DW 2 DUP(0)
-GanadorMulti DB 0
 
 INCLUDE paleta.inc
 INCLUDE figuras.inc
@@ -117,8 +105,6 @@ INCLUDE animar.inc
 INCLUDE pruebas.inc
 INCLUDE tiempo.inc
 INCLUDE records.inc
-INCLUDE inverso.inc
-INCLUDE duelo.inc
 
 MAIN PROC
     MOV AX, @DATA
@@ -162,17 +148,6 @@ MAIN PROC
         JNE RevisarTeclaMenu
         JMP Terminar
     RevisarTeclaMenu:
-        CMP AH, 3FH
-        JNE RevisarInversoMenu
-        CALL IniciarMultijugador
-        JMP ActualizarMenu
-    RevisarInversoMenu:
-        CMP AH, 3EH
-        JNE RevisarRecordsMenu
-
-        CALL IniciarModoInverso
-        JMP ActualizarMenu
-    RevisarRecordsMenu:
         CMP AH, 3DH
         JNE RevisarPruebaManual
         CALL ConsultarRecords

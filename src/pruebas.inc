@@ -42,8 +42,6 @@ PruebaEjecutar:
     CALL ProbarRanking
     CALL ProbarArchivoRecords
     CALL ProbarPartidaCompleta
-    CALL ProbarDuelo
-    CALL ProbarComparacionDuelo
     CALL CapturarNiveles
     CALL CapturarVistas
     MOV AX, 0003H
@@ -65,7 +63,7 @@ PruebaMensajeError:
     INT 21H
     MOV AX, 4C01H
     INT 21H
-PruebaOK DB 'OK: 4 casos, 3 niveles, validacion, historial, victoria, derrota, tiempo, records, transiciones y duelo.',13,10,'$'
+PruebaOK DB 'OK: 4 casos, 3 niveles, validacion, historial, victoria, derrota, tiempo, records y transiciones.',13,10,'$'
 PruebaError DB 'ERROR en las pruebas.',13,10,'$'
 RevisarPruebas ENDP
 
@@ -502,12 +500,10 @@ ProbarArchivoRecords PROC
     CMP WORD PTR Records[10], 20
     JNE PruebaArchivoFallo
 
-    MOV ModoPruebas, 0
-    MOV ModoMulti, 1
+    MOV ModoPruebas, 1
     MOV SegundosJuego, 5
     MOV NuevoRecord, 0
     CALL RegistrarVictoria
-    MOV ModoMulti, 0
     MOV ModoPruebas, 1
     CMP NuevoRecord, 0
     JNE PruebaArchivoFallo
@@ -543,7 +539,6 @@ ProbarArchivoRecords PROC
 PruebaArchivoFallo:
     INC PruebasFallidas
 PruebaArchivoLimpiar:
-    MOV ModoMulti, 0
     MOV ModoPruebas, 1
     MOV DX, OFFSET NombreRecordsPrueba
     MOV AH, 41H
@@ -677,11 +672,6 @@ CapturarEditores PROC
     CAPTURAR_VISTA 'PRUEBA.RAW'
     CALL CerrarEstilo
     MOV ClaveManual, 0
-    MOV PermitirRepetidos, 0
-    CALL DibujarEditorClave
-    CALL MostrarClaveManual
-    CAPTURAR_VISTA 'INVERSO.RAW'
-    CALL CerrarEstilo
     POP SI
     POP AX
     RET
@@ -748,191 +738,3 @@ PruebaFundidoFin:
     POP AX
     RET
 ProbarTransiciones ENDP
-
-EncolarVictoriaMulti PROC
-    PUSH AX
-    PUSH BX
-    PUSH CX
-    CALL VaciarTeclasMulti
-    MOV BX, 3
-PruebaMultiEncolarCasilla:
-    MOV CX, 0231H
-    MOV AH, 05H
-    INT 16H
-    CMP AL, 0
-    JNE PruebaMultiTecladoFallo
-    MOV CX, 4D00H
-    MOV AH, 05H
-    INT 16H
-    CMP AL, 0
-    JNE PruebaMultiTecladoFallo
-    DEC BX
-    JNZ PruebaMultiEncolarCasilla
-    MOV CX, 0231H
-    MOV AH, 05H
-    INT 16H
-    CMP AL, 0
-    JNE PruebaMultiTecladoFallo
-    MOV CX, 1C0DH
-    MOV AH, 05H
-    INT 16H
-    CMP AL, 0
-    JNE PruebaMultiTecladoFallo
-    POP CX
-    POP BX
-    POP AX
-    CLC
-    RET
-PruebaMultiTecladoFallo:
-    POP CX
-    POP BX
-    POP AX
-    STC
-    RET
-EncolarVictoriaMulti ENDP
-
-ProbarDuelo PROC
-    PUSH AX
-    PUSH CX
-    PUSH SI
-    MOV NivelActual, 0
-PruebaMultiOtroNivel:
-    MOV ModoMulti, 0
-    CALL IniciarPartida
-    CALL GuardarClaveMulti
-    MOV ModoMulti, 1
-    MOV CodigoSecreto[0], 0
-    CALL IniciarPartida
-    XOR SI, SI
-PruebaMultiMismaClave:
-    MOV AL, CodigoSecreto[SI]
-    CMP AL, ClaveMulti[SI]
-    JNE PruebaMultiFallo
-    CMP IntentoActual[SI], 0
-    JNE PruebaMultiFallo
-    INC SI
-    CMP SI, 5
-    JB PruebaMultiMismaClave
-    INC NivelActual
-    CMP NivelActual, 3
-    JB PruebaMultiOtroNivel
-
-    MOV NivelActual, 1
-    MOV ClaveMulti[0], 1
-    MOV ClaveMulti[1], 1
-    MOV ClaveMulti[2], 1
-    MOV ClaveMulti[3], 1
-    MOV JugadorMulti, 0
-PruebaMultiTurno:
-    CALL IniciarPartida
-    CALL PantallaJuego
-    CALL EncolarVictoriaMulti
-    JC PruebaMultiFallo
-    CALL ControlarTurnoMulti
-    JC PruebaMultiFallo
-    CMP PartidaTerminada, 1
-    JNE PruebaMultiFallo
-    CMP RelojActivo, 0
-    JNE PruebaMultiFallo
-    CMP NuevoRecord, 0
-    JNE PruebaMultiFallo
-    CMP JugadorMulti, 0
-    JNE PruebaMultiDosTermino
-    CMP ResultadoMulti[0], 1
-    JNE PruebaMultiFallo
-    CMP IntentosMulti[0], 1
-    JNE PruebaMultiFallo
-    CAPTURAR_VISTA 'DUELJ1.RAW'
-    INC JugadorMulti
-    CALL PantallaTurnoMulti
-    CAPTURAR_VISTA 'TURNO2.RAW'
-    JMP PruebaMultiTurno
-PruebaMultiDosTermino:
-    CMP ResultadoMulti[1], 1
-    JNE PruebaMultiFallo
-    CMP IntentosMulti[1], 1
-    JNE PruebaMultiFallo
-    MOV TiempoMulti[0], 90
-    MOV TiempoMulti[2], 90
-    CALL CompararDuelo
-    CMP GanadorMulti, 0
-    JNE PruebaMultiFallo
-    CALL PantallaDuelo
-    CAPTURAR_VISTA 'DUELFIN.RAW'
-
-    CALL IniciarPartida
-    CALL PantallaJuego
-    CALL VaciarTeclasMulti
-    MOV CX, 011BH
-    MOV AH, 05H
-    INT 16H
-    CMP AL, 0
-    JNE PruebaMultiFallo
-    CALL ControlarTurnoMulti
-    JNC PruebaMultiFallo
-    CMP RelojActivo, 0
-    JNE PruebaMultiFallo
-    CMP PartidaTerminada, 0
-    JNE PruebaMultiFallo
-    JMP PruebaMultiFin
-PruebaMultiFallo:
-    INC PruebasFallidas
-PruebaMultiFin:
-    MOV ModoMulti, 0
-    MOV JugadorMulti, 0
-    MOV NivelActual, 0
-    MOV RelojActivo, 0
-    CALL VaciarTeclasMulti
-    POP SI
-    POP CX
-    POP AX
-    RET
-ProbarDuelo ENDP
-
-ComprobarGanadorMulti PROC
-    CALL CompararDuelo
-    CMP AL, GanadorMulti
-    JE PruebaGanadorCorrecto
-    INC PruebasFallidas
-PruebaGanadorCorrecto:
-    RET
-ComprobarGanadorMulti ENDP
-
-ProbarComparacionDuelo PROC
-    PUSH AX
-    MOV ResultadoMulti[0], 1
-    MOV ResultadoMulti[1], 1
-    MOV IntentosMulti[0], 3
-    MOV IntentosMulti[1], 4
-    MOV TiempoMulti[0], 300
-    MOV TiempoMulti[2], 1
-    MOV AL, 1
-    CALL ComprobarGanadorMulti
-    MOV IntentosMulti[0], 4
-    MOV IntentosMulti[1], 3
-    MOV AL, 2
-    CALL ComprobarGanadorMulti
-    MOV IntentosMulti[0], 3
-    MOV TiempoMulti[0], 100
-    MOV TiempoMulti[2], 90
-    MOV AL, 2
-    CALL ComprobarGanadorMulti
-    MOV TiempoMulti[0], 80
-    MOV AL, 1
-    CALL ComprobarGanadorMulti
-    MOV TiempoMulti[0], 90
-    XOR AL, AL
-    CALL ComprobarGanadorMulti
-    MOV ResultadoMulti[1], 2
-    MOV AL, 1
-    CALL ComprobarGanadorMulti
-    MOV ResultadoMulti[0], 2
-    MOV ResultadoMulti[1], 1
-    MOV AL, 2
-    CALL ComprobarGanadorMulti
-    MOV ResultadoMulti[1], 2
-    XOR AL, AL
-    CALL ComprobarGanadorMulti
-    POP AX
-    RET
-ProbarComparacionDuelo ENDP

@@ -197,8 +197,6 @@ RecordInsertarFin:
 InsertarRecord ENDP
 
 RegistrarVictoria PROC
-    CMP ModoMulti, 0
-    JNE RecordRegistrarFin
     CMP PartidaTerminada, 1
     JNE RecordRegistrarFin
     CMP ClaveManual, 0
