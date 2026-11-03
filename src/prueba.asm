@@ -5,7 +5,6 @@ JUMPS
 INCLUDE macros.inc
 
 .DATA
-ModoAnterior DB ?
 OpcionMenu DB 0
 InicioSonido DW 0
 SonidoActivo DB 0
@@ -126,9 +125,6 @@ MAIN PROC
     MOV DS, AX
     CLD
 
-    MOV AH, 0FH
-    INT 10H
-    MOV ModoAnterior, AL
     MOV AX, 0013H
     INT 10H
     CALL CargarPaleta
@@ -272,8 +268,7 @@ MAIN PROC
     Terminar:
         CALL IniciarTransicion
         CALL ApagarSonido
-        MOV AL, ModoAnterior
-        MOV AH, 00H
+        MOV AX, 0003H
         INT 10H
         MOV AX, 4C00H
         INT 21H

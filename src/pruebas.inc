@@ -46,8 +46,7 @@ PruebaEjecutar:
     CALL ProbarComparacionDuelo
     CALL CapturarNiveles
     CALL CapturarVistas
-    MOV AL, ModoAnterior
-    MOV AH, 00H
+    MOV AX, 0003H
     INT 10H
     CMP PruebasFallidas, 0
     JNE PruebaMensajeError
